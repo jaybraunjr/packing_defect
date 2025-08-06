@@ -1,8 +1,7 @@
 import os
 import argparse
 import json
-from pathlib import Path
-from pprint import pprint
+import logging
 import MDAnalysis as mda
 
 from packing_defect.core.classification import DefaultClassification, UserDictClassification
@@ -26,7 +25,7 @@ def run_defect(top_file: str,
 
     # Classification logic. UserDictClassification uses logic from the input JSON files.
     # DefaultClassification uses the default lipid droplet classification.
-    # Classification gives the groups differnet numbers, depending on type of defect
+    # Classification gives the groups different numbers, depending on type of defect
     if class_json:
         classifier = UserDictClassification.from_json(class_json)
         classify_fn = classifier.classify
@@ -39,7 +38,7 @@ def run_defect(top_file: str,
 
     # this needs to be adressed, currently not working:
     if json_only:
-        print("\u2705 JSON-only mode: using JSON for classification; skipping topology parsing")
+        logging.info("\u2705 JSON-only mode: using JSON for classification; skipping topology parsing")
         if not isinstance(classifier, UserDictClassification):
             raise ValueError("--json-only requires a JSON classifier")
 
@@ -71,9 +70,9 @@ def run_defect(top_file: str,
             try:
                 if os.path.exists(topopath):
                     radii[resname] = topo_reader.read(resname, topopath)
-                    print(f"\u2705 Loaded topology for {resname}")
+                    logging.info(f"\u2705 Loaded topology for {resname}")
                 elif isinstance(classifier, UserDictClassification) and resname in classifier.rules:
-                    print(f"\u26A0\uFE0F  No topology for {resname}, using JSON fallback")
+                    logging.warning(f"\u26A0\uFE0F  No topology for {resname}, using JSON fallback")
                     radii[resname] = {}
                     for atom_name, code in classifier.rules[resname].items():
                         try:
@@ -82,9 +81,9 @@ def run_defect(top_file: str,
                             raise ValueError(f"\u274C No radius found for atom type '{atom_name}' in radii.json")
                         radii[resname][atom_name] = (radius, code)
                 else:
-                    print(f"\u26A0\uFE0F  Skipped {resname}: no topology and no JSON entry")
+                    logging.warning(f"\u26A0\uFE0F  Skipped {resname}: no topology and no JSON entry")
             except Exception as e:
-                print(f"\u274C Failed to handle {resname}: {e}")
+                logging.error(f"\u274C Failed to handle {resname}: {e}")
 
     if not radii:
         raise ValueError("\u274C No residue radii definitions found. Check topology parsing or JSON mapping.")
@@ -125,6 +124,7 @@ def run_defect(top_file: str,
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser(description="Run packing defect analysis.")
     parser.add_argument('--top', required=True, help='Topology file (.gro, .psf)')
     parser.add_argument('--traj', required=True, help='Trajectory file (.xtc, .dcd)')
