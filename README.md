@@ -37,7 +37,8 @@ It supports defect classification by atom types and radius-based stamping, outpu
 - Compute summary statistics of large defect clusters
 
 
-packing_defect is bound by a [Code of Conduct](https://github.com/jaybraunjr/packing_defect/blob/main/CODE_OF_CONDUCT.md).
+
+
 
 ### Installation
 
