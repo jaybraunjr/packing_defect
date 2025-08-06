@@ -3,7 +3,8 @@
 import numpy as np
 import os
 from MDAnalysis import AtomGroup
-from packing_defect.core.grid import DefectGrid
+from packing_defect.core.grid import DefectGrid 
+from packing_defect.core.cluster   import DefectClustering
 from packing_defect.core.writer import write_defect_coordinates
 from packing_defect.utils import (
     apply_pbc,
@@ -15,7 +16,7 @@ from packing_defect.utils import (
 class PackingDefectAnalyzer:
     def __init__(self, atomgroups, radii, output_prefix='./', leaflet='both',
                  defect_types=None, defect_thresholds=None):
-        self.N = 10000
+        self.N = 50000
         self.universe = atomgroups[0].universe
         self.dt = self.universe.trajectory[0].dt
         self.atomgroups = atomgroups
@@ -33,6 +34,7 @@ class PackingDefectAnalyzer:
 
 
 
+
     def run(self):
         for ts in self.universe.trajectory:
             print(f"Processing frame {ts.frame}, time: {ts.time:.3f}, pbc: {ts.dimensions[:3]}")
@@ -46,6 +48,7 @@ class PackingDefectAnalyzer:
 
 
 
+
     def _analyze_frame(self, ts):
         ag = self.atomgroups[0]
         dim = ts.dimensions.copy()
@@ -55,7 +58,8 @@ class PackingDefectAnalyzer:
         hz = np.average(ag.select_atoms('name P').positions[:, 2])
         grid = DefectGrid(box_xy=(pbc[0], pbc[1]), dx=self.dx, dy=self.dy, hz=hz)
         zlim, PL = self._classify_leaflets(ag, grid)
-        return grid, PL['up'] + 5, PL['dw'] - 5, dim
+        return grid, PL['up'] + 2, PL['dw'] - 2, dim
+
 
 
 
@@ -68,9 +72,9 @@ class PackingDefectAnalyzer:
 
         atoms = {}
         if self.leaflet in ['both', 'up']:
-            atoms['up'] = ag.select_atoms(f'prop z > {PL["up"] - 20}')
+            atoms['up'] = ag.select_atoms(f'prop z > {PL["up"] - 10}')
         if self.leaflet in ['both', 'dw']:
-            atoms['dw'] = ag.select_atoms(f'prop z < {PL["dw"] + 20}')
+            atoms['dw'] = ag.select_atoms(f'prop z < {PL["dw"] + 10}')
 
         for leaflet, group in atoms.items():
             for atom in group:
@@ -85,19 +89,34 @@ class PackingDefectAnalyzer:
 
 
 
+
     def _finalize(self):
         grids, zlimup, zlimdw, dims = zip(*self._results)
         df = initialize_empty_defect_universe(self.N, len(dims), dims, self.dt)
         defect_uni = {d: df.copy() for d in self.defect_types}
+        defect_clu = {d: [] for d in self.defect_types}
 
         for d in self.defect_types:
             threshold = self.defect_thresholds[d]
             for i, ts in enumerate(defect_uni[d].trajectory):
                 num = 0
+                # Upper leaflet
+                mask_up = grids[i].get_binary_mask('up', threshold)
+                defect_clu[d].append(mask_up.astype(int))
                 num = self._populate_defect_coords(threshold, grids[i], zlimup[i], defect_uni[d], num, 'up')
+
+                # Lower leaflet
+                mask_dw = grids[i].get_binary_mask('dw', threshold)
+                defect_clu[d].append(mask_dw.astype(int))
                 self._populate_defect_coords(threshold, grids[i], zlimdw[i], defect_uni[d], num, 'dw')
 
         self._write_outputs(defect_uni)
+        self.defect_cluster_masks = defect_clu
+
+        for d in self.defect_types:
+            dat_path = os.path.join(self.output_prefix, f"{d}.dat")
+            DefectClustering.defect_size(defect_clu[d], nbins=600, bin_max=150, fname=dat_path, prob=True)
+
 
 
 
@@ -112,9 +131,11 @@ class PackingDefectAnalyzer:
 
 
 
+
     def _write_outputs(self, defect_uni):
         for d, u in defect_uni.items():
             outdir = os.path.join(self.output_prefix, d)
+            os.makedirs(outdir, exist_ok=True)
             for i, ts in enumerate(u.trajectory):
                 _ = self.protein_atoms.universe.trajectory[i]
                 path = os.path.join(outdir, f"{d}_frame_{i}.gro")

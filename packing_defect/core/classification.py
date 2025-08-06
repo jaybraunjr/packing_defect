@@ -34,11 +34,14 @@ class DefaultClassification(ClassificationStrategy):
         self.TGglyc = ['O11','O21','O31','O12','O22','O32',
                        'C1','C2','C3','C11','C21','C31',
                        'HA','HB','HS','HX','HY']
+        self.PL_resnames = ('POPC','DOPE','SAPI')
 
     def classify(self, resname: str, atom_name: str) -> int:
-        if resname != 'TRIO':
+        if resname in self.PL_resnames:
             return 1 if atom_name in self.tails else -1
-        return 2 if atom_name in self.TGglyc else 3
+        if resname == 'TRIO':
+            return 2 if atom_name in self.TGglyc else 3
+        return -1
 
 
 class UserDictClassification(ClassificationStrategy):

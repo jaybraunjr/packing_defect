@@ -13,16 +13,22 @@ from packing_defect.core.analyzer_radius import (
     calculate_defects
 )
 
+
+# This is just a sanity check plot
+
 def plot_histogram(defects, label, color=None):
     h, _ = np.histogram(defects, bins=np.linspace(0, 150, 600))
     h[0] = 0
     total = h.sum()
     if total == 0:
-        print(f"⚠️ Skipping plot for {label} (no defect data)")
+        print(f"Skipping plot for {label} (no defect data)")
         return
     binp = 0.5 * (_[1:] + _[:-1])
     plt.scatter(binp, h / total, label=label, color=color)
     plt.yscale('log')
+
+
+# If there is a protein, this avoids it
 
 def run_radius(base_directory, output_base_dir, lipid_types, frame_start, frame_end,
                protein_atom_count, apply_protein_cutoff=True, cutoff_distance=1.5):

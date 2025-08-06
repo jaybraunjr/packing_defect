@@ -1,10 +1,10 @@
-
-
 import numpy as np
+import math
+
+
 
 
 def _make_graph(matrix):
-    """Convert a binary mask into an adjacency map of occupied nodes."""
     graph = {}
     nx, ny = matrix.shape
     for (i, j), val in np.ndenumerate(matrix):
@@ -21,8 +21,8 @@ def _make_graph(matrix):
     return graph
 
 
+
 def _dfs(graph, start):
-    """Depth-first search returning one connected component."""
     visited, stack = set(), [start]
     while stack:
         v = stack.pop()
@@ -32,6 +32,7 @@ def _dfs(graph, start):
     return visited
 
 
+
 class DefectGrid:
     def __init__(self, box_xy, dx=1.0, dy=1.0, hz=None):
         self.dx = dx
@@ -39,50 +40,104 @@ class DefectGrid:
         self.Lx, self.Ly = box_xy
         self.hz = hz
 
-        self.xbins = int(np.ceil(self.Lx / self.dx))
-        self.ybins = int(np.ceil(self.Ly / self.dy))
+        self.nx = int(np.ceil(self.Lx / self.dx))
+        self.ny = int(np.ceil(self.Ly / self.dy))
+        self.xbins = self.nx
+        self.ybins = self.ny
 
         self.xx, self.yy = np.meshgrid(
-            np.linspace(0, self.Lx, self.xbins),
-            np.linspace(0, self.Ly, self.ybins),
+            np.linspace(0, self.Lx, self.nx),
+            np.linspace(0, self.Ly, self.ny),
             indexing='ij'
         )
 
-        self.up = np.full((self.xbins, self.ybins), 0, dtype=int)
-        self.dw = np.full((self.xbins, self.ybins), 0, dtype=int)
-        self.z_up = np.full((self.xbins, self.ybins), -np.inf)
-        self.z_dw = np.full((self.xbins, self.ybins), np.inf)
+        self.grid = {
+            'up': np.zeros((self.nx, self.ny), dtype=int),
+            'dw': np.zeros((self.nx, self.ny), dtype=int)
+        }
+
+        self.zdepth = {
+            'up': np.full((self.nx, self.ny), -np.inf),
+            'dw': np.full((self.nx, self.ny), np.inf)
+        }
+
+
+
+    def get_binary_mask(self, leaflet: str, threshold: int) -> np.ndarray:
+        """
+        Return a binary mask where the defect grid matches the given threshold.
+
+        """
+        return (self.grid[leaflet] == threshold).astype(int)
+
+
+
+    # def update(self, x, y, z, r, code, leaflet):
+    #     if leaflet not in ['up', 'dw']:
+    #         return
+
+    #     i = int(round(x / self.dx))
+    #     j = int(round(y / self.dy))
+    #     if 0 <= i < self.xbins and 0 <= j < self.ybins:
+
+    #         if leaflet == 'up':
+    #             if z > self.zdepth['up'][i, j]:
+    #                 self.grid['up'][i, j] = code
+    #                 self.zdepth['up'][i, j] = z
+    #         elif leaflet == 'dw':
+    #             if z < self.zdepth['dw'][i, j]:
+    #                 self.grid['dw'][i, j] = code
+    #                 self.zdepth['dw'][i, j] = z
 
     def update(self, x, y, z, r, code, leaflet):
-        if leaflet not in ['up', 'dw']:
+        # only up or dw matter
+        if leaflet not in ('up','dw'):
             return
 
-        i = int(round(x / self.dx))
-        j = int(round(y / self.dy))
-        if 0 <= i < self.xbins and 0 <= j < self.ybins:
-            if leaflet == 'up':
-                if z > self.z_up[i, j]:
-                    self.up[i, j] = code
-                    self.z_up[i, j] = z
-            elif leaflet == 'dw':
-                if z < self.z_dw[i, j]:
-                    self.dw[i, j] = code
-                    self.z_dw[i, j] = z
+        r_eff = r + math.sqrt(self.dx**2 + self.dy**2)/2.0
+        i0 = int(round(x / self.dx))
+        j0 = int(round(y / self.dy))
+        max_bin = int(math.ceil(r_eff / self.dx))
+
+        for di in range(-max_bin, max_bin+1):
+            ii = i0 + di
+            if not (0 <= ii < self.xbins):
+                continue
+            x_c = (ii + 0.5) * self.dx
+
+            for dj in range(-max_bin, max_bin+1):
+                jj = j0 + dj
+                if not (0 <= jj < self.ybins):
+                    continue
+                y_c = (jj + 0.5) * self.dy
+
+                if (x_c - x)**2 + (y_c - y)**2 > r_eff**2:
+                    continue
+
+                if leaflet == 'up':
+                    if z > self.zdepth['up'][ii, jj]:
+                        self.zdepth['up'][ii, jj] = z
+                        self.grid   ['up'][ii, jj] = code
+                else:  # leaflet == 'dw'
+                    if z < self.zdepth['dw'][ii, jj]:
+                        self.zdepth['dw'][ii, jj] = z
+                        self.grid   ['dw'][ii, jj] = code
+
+
+
 
     def get_coordinates(self, leaflet, code):
-        if leaflet == 'up':
-            mask = self.up == code
-        elif leaflet == 'dw':
-            mask = self.dw == code
-        else:
-            return np.empty(0), np.empty(0)
-
+        mask = self.grid[leaflet] == code
         x_coords = self.xx[mask]
         y_coords = self.yy[mask]
         return x_coords, y_coords
 
+
+
     def _binary_mask(self, leaflet):
-        return self.up if leaflet == 'up' else self.dw
+        return self.grid[leaflet]
+
+
 
     def detect_clusters(self, leaflet):
         mask = self._binary_mask(leaflet)
@@ -96,5 +151,9 @@ class DefectGrid:
                 visited.update(component)
         return clusters
 
+
+
     def cluster_sizes(self, leaflet):
         return [len(c) for c in self.detect_clusters(leaflet)]
+    
+    

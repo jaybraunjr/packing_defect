@@ -13,24 +13,7 @@ from ..utils import (
 
 
 def calculate_defects(u, combine=False):
-    """
-    Scan each frame of the Universe `u`, stamp a binary defect (code=1) wherever
-    there’s an atom in each leaflet, then return the connected-component sizes.
 
-    Parameters
-    ----------
-    u : MDAnalysis.Universe
-        Universe containing only the atoms to analyze.
-    combine : bool, optional
-        If True, returns a single combined list of sizes. Default is False.
-
-    Returns
-    -------
-    up_sizes, dw_sizes : list of int
-        Size of each defect cluster in upper and lower leaflets (if combine=False).
-    combined : list of int
-        Single list of all defect sizes (if combine=True).
-    """
     up_sizes = []
     dw_sizes = []
 
