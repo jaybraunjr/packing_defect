@@ -32,14 +32,7 @@ packing_defect is bound by a [Code of Conduct](https://github.com/jaybraunjr/pac
 ### Installation
 
 
-If possible, we strongly recommend that you use
-[Anaconda](https://docs.conda.io/en/latest/) as your package manager.
-Below we provide instructions both for `conda` and
-for `pip`.
-
 #### With conda
-
-Ensure that you have [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) installed.
 
 Create a virtual environment and activate it:
 
@@ -47,43 +40,33 @@ Create a virtual environment and activate it:
 conda create --name packing_defect
 conda activate packing_defect
 ```
-
 Install the development and documentation dependencies:
-
 ```
 conda env update --name packing_defect --file devtools/conda-envs/test_env.yaml
 conda env update --name packing_defect --file docs/requirements.yaml
 ```
-
 Build this package from source:
-
 ```
 pip install -e .
 ```
-
 If you want to update your dependencies (which can be risky!), run:
 
 ```
 conda update --all
 ```
-
 And when you are finished, you can exit the virtual environment with:
-
 ```
 conda deactivate
 ```
 
 #### With pip
-
 To build the package from source, run:
-
 ```
 pip install .
 ```
 
 If you want to create a development environment, install
 the dependencies required for tests and docs with:
-
 ```
 pip install ".[test,doc]"
 ```
