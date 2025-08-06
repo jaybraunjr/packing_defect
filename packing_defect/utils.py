@@ -1,8 +1,9 @@
+"""Utility functions for packing_defect."""
 
 import numpy as np
 import MDAnalysis as mda
 from MDAnalysis import Universe
-import numpy as np
+
 
 def apply_pbc(positions, box):
     """Apply periodic boundary conditions to positions."""
@@ -11,25 +12,21 @@ def apply_pbc(positions, box):
     return positions - box_xy * np.floor(positions / box_xyz)
 
 
-
-
 def compute_pairwise_distances(positions1, positions2):
     """Compute pairwise distances between two sets of positions."""
     diff = positions1[:, np.newaxis, :] - positions2
     return np.sqrt(np.sum(diff**2, axis=2))
 
 
-
-
 def validate_defect_thresholds(defect_types, defect_thresholds):
+    """Ensure every defect type has a corresponding threshold."""
     for dt in defect_types:
         if dt not in defect_thresholds:
             raise ValueError(f"Missing threshold for defect type: {dt}")
 
 
-
-
 def write_combined_gro(protein_atoms, defect_atoms, dimensions, filepath):
+    """Merge protein and defect atoms and write to a GRO file."""
     combined = mda.Merge(protein_atoms, defect_atoms)
     combined.atoms.positions[:len(protein_atoms)] = protein_atoms.positions
     combined.atoms.positions[len(protein_atoms):] = defect_atoms.positions
@@ -37,8 +34,8 @@ def write_combined_gro(protein_atoms, defect_atoms, dimensions, filepath):
     combined.atoms.write(filepath)
 
 
-
 def initialize_empty_defect_universe(n_atoms, nframes, dims, dt):
+    """Create an empty Universe for defect trajectories."""
     fac = np.zeros((nframes, n_atoms, 3))
 
     df = Universe.empty(
@@ -54,7 +51,7 @@ def initialize_empty_defect_universe(n_atoms, nframes, dims, dt):
     df.load_new(fac, order='fac')
     df.trajectory[0].dt = dt
 
-    for i, ts in enumerate(df.trajectory):
+    for i, _ in enumerate(df.trajectory):
         df.trajectory[i].dimensions = dims[i]
 
     return df
