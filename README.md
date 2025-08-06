@@ -25,12 +25,21 @@ packing_defect
 
 # Membrane packing defect analysis
 
-This package allows users to find defects in bilayers and monolayers. Defects are essential for membrane protein interactions.
+This toolkit analyzes membrane packing defects from molecular dynamics simulations using grid-based detection and clustering. 
+It supports defect classification by atom types and radius-based stamping, outputs frames with defects, and computes defect size distributions and statistics.
+
+- Detect defects per frame on membrane leaflets (upper/lower)
+- Classify atoms into defect types (e.g., PL tails, TG glycerol, TG tails)
+- Write `.gro` or `.pdb` files for defects
+- Generate `.dat` defect size distributions
+- Visualize defect size histograms
+- Filter/renumber `.gro` or `.pdb` files
+- Compute summary statistics of large defect clusters
+
 
 packing_defect is bound by a [Code of Conduct](https://github.com/jaybraunjr/packing_defect/blob/main/CODE_OF_CONDUCT.md).
 
 ### Installation
-
 
 #### With conda
 
