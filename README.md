@@ -1,3 +1,5 @@
+<img src="https://github.com/user-attachments/assets/32cbe599-252c-4f6d-b1e1-a49f109eb614" width="750" />
+
 packing_defect
 ==============================
 [//]: # (Badges)
@@ -21,14 +23,15 @@ packing_defect
 [url_license]: https://www.gnu.org/licenses/gpl-2.0
 [url_mda]: https://www.mdanalysis.org
 
-membrane packing defect analysis
+# Membrane packing defect analysis
+
+This package allows users to find defects in bilayers and monolayers. Defects are essential for membrane protein interactions.
 
 packing_defect is bound by a [Code of Conduct](https://github.com/jaybraunjr/packing_defect/blob/main/CODE_OF_CONDUCT.md).
 
 ### Installation
 
-To build packing_defect from source,
-we highly recommend using virtual environments.
+
 If possible, we strongly recommend that you use
 [Anaconda](https://docs.conda.io/en/latest/) as your package manager.
 Below we provide instructions both for `conda` and
@@ -95,6 +98,5 @@ Copyright (c) 2025, R. Jay Braun
 
 #### Acknowledgements
  
-Project based on the 
-[MDAnalysis Cookiecutter](https://github.com/MDAnalysis/cookiecutter-mda) version 0.1.
+
 Please cite [MDAnalysis](https://github.com/MDAnalysis/mdanalysis#citation) when using packing_defect in published work.
