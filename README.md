@@ -37,9 +37,9 @@ It supports defect classification by atom types and radius-based stamping, outpu
 - Compute summary statistics of large defect clusters
 
 
-## 🚀 Usage Examples
+## Usage Examples
 
-### 🧬 1. Run full radius-based defect analysis
+### 1. Run full radius-based defect analysis
 
 ```bash
 python -m packing_defect.run_defect \
