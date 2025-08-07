@@ -1,6 +1,8 @@
 <img src="https://github.com/user-attachments/assets/32cbe599-252c-4f6d-b1e1-a49f109eb614" width="750" />
 
 packing_defect
+> **⚠️ This package is under active development and will soon be integrated into [MDAkit](https://www.mdanalysis.org/mdakit/).**
+>
 ==============================
 [//]: # (Badges)
 
