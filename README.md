@@ -1,9 +1,13 @@
 <img src="https://github.com/user-attachments/assets/32cbe599-252c-4f6d-b1e1-a49f109eb614" width="750" />
 
 packing_defect
-> **⚠️ This package is under active development and will soon be integrated into [MDAkit](https://www.mdanalysis.org/mdakit/).**
->
 ==============================
+## ** ⚠️ Under Development**
+
+**This package is actively being developed and will soon become part of [MDAkit](https://www.mdanalysis.org/mdakit/).**  
+Interfaces, outputs, and command-line options are still subject to change.
+
+
 [//]: # (Badges)
 
 | **Latest release** | [![Last release tag][badge_release]][url_latest_release] ![GitHub commits since latest release (by date) for a branch][badge_commits_since]  [![Documentation Status][badge_docs]][url_docs]|
