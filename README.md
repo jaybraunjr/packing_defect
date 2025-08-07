@@ -37,6 +37,80 @@ It supports defect classification by atom types and radius-based stamping, outpu
 - Compute summary statistics of large defect clusters
 
 
+## 🚀 Usage Examples
+
+### 🧬 1. Run full radius-based defect analysis
+
+```bash
+python -m packing_defect.run_defect \
+  --top system.gro \
+  --traj trajectory.xtc \
+  --out resultsPLacyl \
+  --leaflet both
+```
+
+**Optional arguments**:
+- `--class my_classifier.json`: use a custom classification JSON
+- `--json-only`: skip topology parsing and only use the classification JSON
+- `--leaflet up|dw|both`: restrict defect detection to one leaflet
+
+This writes `.gro` files and `.dat` distributions (e.g., `PLacyl.dat`, `TGacyl.dat`, etc.) into the output directory.
+
+---
+
+### 2. Count large defect clusters per frame
+
+```bash
+python -m packing_defect.core.stats resultsPLacyl -c 8 --summary
+```
+
+- `-c 8` sets the minimum size for a cluster (in grid cells)
+- `--summary` prints mean, median, and standard deviation across frames
+
+---
+
+### 3. Visualize defect size distributions
+
+```bash
+python -m packing_defect.vis resultsPLacyl \
+  --title "Defect Size Distribution" \
+  -o plots/PLacyl_defects.png
+```
+
+- Plots data from `PLacyl.dat`, `TGglyc.dat`, `TGacyl.dat`
+- Y-axis is log-scaled for visibility of rare large defects
+
+---
+
+### 4. Run simplified radius stamping + filtering + histogram (optional)
+
+```bash
+python -m packing_defect.run_radius \
+  --input outputs_custom4 \
+  --output results_radius \
+  --lipids PLacyl TGacyl TGglyc \
+  --start 0 \
+  --end 100 \
+  --protein-count 627 \
+  --cutoff 1.5
+```
+
+- Applies a distance cutoff to exclude defect atoms too close to protein
+- Outputs corrected and renumbered `.gro` files
+- Generates log-scale histograms (`combined_defect_histogram2.png`, etc.)
+
+---
+
+### 5. Track protein-defect interactions
+
+```bash
+python -m packing_defect.core.interactions \
+  -i resultsPLacyl resultsTGacyl resultsTGglyc \
+  -o results/interactions.csv \
+  -c 1.5
+```
+
+Checks whether any protein residues come within `1.5 Å` of defect atoms in each frame and writes the interactions to a CSV file.
 
 
 
