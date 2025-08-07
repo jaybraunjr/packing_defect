@@ -4,7 +4,7 @@
 
 ## ** ⚠️ Under Development**
 
-**This package is actively being developed and will soon become part of [MDAkit](https://www.mdanalysis.org/mdakit/).**  
+**This package is actively being developed and will soon become part of [MDAkit](https://www.mdanalysis.org/pages/mdakits/).**  
 Interfaces, outputs, and command-line options are still subject to change.
 
 
