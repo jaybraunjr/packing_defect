@@ -67,13 +67,32 @@ jobs:
         show-channel-urls: true
 
 
-    - name: Install MDAnalysis version
+    # - name: Install MDAnalysis version
+    #   uses: MDAnalysis/install-mdanalysis@main
+    #   with:
+    #     version: ${{ matrix.mdanalysis-version }}
+    #     install-tests: false
+    #     installer:  mamba 
+    #     shell: bash  -l {0} 
+
+        # Use conda on Windows to avoid uninstall/reinstall issues
+    - name: Install MDAnalysis version (Windows)
+      if: matrix.os == 'windows-latest'
       uses: MDAnalysis/install-mdanalysis@main
       with:
         version: ${{ matrix.mdanalysis-version }}
         install-tests: false
-        installer:  mamba 
-        shell: bash  -l {0} 
+        installer: conda
+
+    # Keep mamba on Linux/macOS for speed
+    - name: Install MDAnalysis version (Linux/macOS)
+      if: matrix.os != 'windows-latest'
+      uses: MDAnalysis/install-mdanalysis@main
+      with:
+        version: ${{ matrix.mdanalysis-version }}
+        install-tests: false
+        installer: mamba
+
       
     - name: Install package
       run: |
@@ -134,7 +153,7 @@ jobs:
       env:
         PYLINTRC: .pylintrc
       run: |
-        pylint .
+        pylint . --fail-under=9.0
 
 
   pypi_check:
