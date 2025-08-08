@@ -103,6 +103,8 @@ class PackingDefectAnalyzer:
             'dw': np.min(ag.positions[:, 2]),
         }, PL
 
+
+
     def _finalize(self):
         grids, zlimup, zlimdw, dims = zip(*self._results)
         df = initialize_empty_defect_universe(

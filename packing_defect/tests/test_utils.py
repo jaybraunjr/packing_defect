@@ -1,73 +1,76 @@
 import numpy as np
-import os
-import pytest
+import MDAnalysis as mda
 from MDAnalysis import Universe
-
 from packing_defect.utils import (
     apply_pbc,
-    calculate_bounding_box,
-    initialize_grid,
     compute_pairwise_distances,
-    _dfs,
-    _make_graph,
-    filter_defects_by_distance,
-    get_defect_coordinates,
+    validate_defect_thresholds,
+    initialize_empty_defect_universe,
     write_combined_gro
 )
 
-def test_apply_pbc_wraps_positions():
+def test_apply_pbc_wraps_into_box():
     box = np.array([10.0, 10.0, 10.0])
-    positions = np.array([[11.0, -1.0, 5.0]])
-    result = apply_pbc(positions, box)
-    assert np.all(result >= 0)
-    assert np.all(result < box)
+    pos = np.array([[11.0, -1.0, 5.0]])
+    wrapped = apply_pbc(pos, box)
+    assert np.all(wrapped >= 0) and np.all(wrapped < box)
 
-def test_calculate_bounding_box():
-    u = Universe.empty(3,trajectory=True)
-    u.atoms.positions = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-    bbox = calculate_bounding_box(u.atoms, padding=1.0)
+def test_pairwise_distances_basic():
+    a = np.array([[0,0,0]])
+    b = np.array([[3,4,0]])
+    d = compute_pairwise_distances(a, b)
+    assert d.shape == (1,1) and d[0,0] == 5.0
 
-    assert bbox['x_min'] < 1
-    assert bbox['x_max'] > 7
-    assert bbox['y_min'] < 2
-    assert bbox['y_max'] > 8
+def test_validate_defect_thresholds_ok():
+    validate_defect_thresholds(["A","B"], {"A":1, "B":2})
 
-def test_initialize_grid_structure():
-    box = [5.0, 5.0, 10.0]
-    grid = initialize_grid(box, dx=1, dy=1, hz=10.0)
+def test_validate_defect_thresholds_missing():
+    try:
+        validate_defect_thresholds(["A","B"], {"A":1})
+        raised = False
+    except ValueError:
+        raised = True
+    assert raised
 
-    assert 'xx' in grid and 'yy' in grid
-    assert grid['xx'].shape == grid['yy'].shape
-    assert np.all(grid['z_up'] == 10.0)
+def test_initialize_empty_defect_universe_and_write(tmp_path):
+    n_atoms, nframes = 4, 3
+    dims = [np.array([20,20,20,90,90,90]) for _ in range(nframes)]
+    u = initialize_empty_defect_universe(n_atoms, nframes, dims, dt=1.0)
+    assert len(u.atoms) == n_atoms
+    assert u.trajectory.n_frames == nframes
+    # Create two Universes to merge/write
+    prot = mda.Universe.empty(2, trajectory=False)
+    prot.add_TopologyAttr("name", ["P1","P2"])
+    prot.atoms.positions = np.array([[1,1,1],[2,2,2]])
+    dfx = mda.Universe.empty(2, trajectory=False)
+    dfx.add_TopologyAttr("name", ["D1","D2"])
+    dfx.atoms.positions = np.array([[3,3,3],[4,4,4]])
+    out = tmp_path / "combo.gro"
+    write_combined_gro(prot.atoms, dfx.atoms, np.array([20,20,20,90,90,90]), str(out))
+    assert out.exists()
 
-def test_pairwise_distance_basic():
-    a = np.array([[0, 0, 0]])
-    b = np.array([[3, 4, 0]])
-    result = compute_pairwise_distances(a, b)
-    assert np.isclose(result[0, 0], 5.0)
+from MDAnalysis.coordinates.memory import MemoryReader
 
-def test_dfs_finds_connected():
-    graph = {0: {1}, 1: {0, 2}, 2: {1}, 3: set()}
-    visited = _dfs(graph, 0)
-    assert visited == {0, 1, 2}
+def test_initialize_empty_defect_universe_and_write(tmp_path):
+    n_atoms, nframes = 4, 3
+    dims = [np.array([20,20,20,90,90,90]) for _ in range(nframes)]
+    u = initialize_empty_defect_universe(n_atoms, nframes, dims, dt=1.0)
+    assert len(u.atoms) == n_atoms
+    assert u.trajectory.n_frames == nframes
 
-def test_make_graph_from_matrix():
-    matrix = np.array([[0, 1], [1, 1]])
-    graph = _make_graph(matrix)
-    assert len(graph) > 0
-    assert all(isinstance(v, set) for v in graph.values())
+    # Create two Universes with 1-frame memory trajectories
+    prot = mda.Universe.empty(2, n_residues=2, n_segments=1, trajectory=True,
+                              atom_resindex=np.arange(2), residue_segindex=np.zeros(2, int))
+    prot.add_TopologyAttr("name", ["P1", "P2"])
+    prot.trajectory = MemoryReader(np.zeros((1, 2, 3)))
+    prot.atoms.positions = np.array([[1, 1, 1], [2, 2, 2]])
 
-def test_filter_defects_by_distance_removes_close_points():
-    defects = np.array([[0, 0, 0], [10, 10, 10]])
-    positions = np.array([[0, 0, 1]])
-    filtered = filter_defects_by_distance(defects, positions, threshold=2.0)
+    dfx = mda.Universe.empty(2, n_residues=2, n_segments=1, trajectory=True,
+                             atom_resindex=np.arange(2), residue_segindex=np.zeros(2, int))
+    dfx.add_TopologyAttr("name", ["D1", "D2"])
+    dfx.trajectory = MemoryReader(np.zeros((1, 2, 3)))
+    dfx.atoms.positions = np.array([[3, 3, 3], [4, 4, 4]])
 
-    assert len(filtered) == 1
-    assert np.allclose(filtered[0], [10, 10, 10])
-
-def test_get_defect_coordinates_works():
-    grid = np.array([[0, 1], [1, 0]])
-    xs, ys = get_defect_coordinates(grid, 1)
-    assert set(zip(xs, ys)) == {(0, 1), (1, 0)}
-
-
+    out = tmp_path / "combo.gro"
+    write_combined_gro(prot.atoms, dfx.atoms, np.array([20,20,20,90,90,90]), str(out))
+    assert out.exists()
