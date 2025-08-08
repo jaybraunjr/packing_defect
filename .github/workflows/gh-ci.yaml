@@ -67,32 +67,13 @@ jobs:
         show-channel-urls: true
 
 
-    # - name: Install MDAnalysis version
-    #   uses: MDAnalysis/install-mdanalysis@main
-    #   with:
-    #     version: ${{ matrix.mdanalysis-version }}
-    #     install-tests: false
-    #     installer:  mamba 
-    #     shell: bash  -l {0} 
-
-        # Use conda on Windows to avoid uninstall/reinstall issues
-    - name: Install MDAnalysis version (Windows)
-      if: matrix.os == 'windows-latest'
+    - name: Install MDAnalysis version
       uses: MDAnalysis/install-mdanalysis@main
       with:
         version: ${{ matrix.mdanalysis-version }}
         install-tests: false
-        installer: conda
-
-    # Keep mamba on Linux/macOS for speed
-    - name: Install MDAnalysis version (Linux/macOS)
-      if: matrix.os != 'windows-latest'
-      uses: MDAnalysis/install-mdanalysis@main
-      with:
-        version: ${{ matrix.mdanalysis-version }}
-        install-tests: false
-        installer: mamba
-
+        installer:  mamba 
+        shell: bash  -l {0} 
       
     - name: Install package
       run: |
