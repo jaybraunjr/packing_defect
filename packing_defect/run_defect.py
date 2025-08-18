@@ -18,7 +18,10 @@ def run_defect(
     output_dir: str,
     class_json: str = None,
     json_only: bool = False,
-    leaflet: str = 'both'
+    leaflet: str = 'both',
+    start: int = None,
+    stop: int = None,
+    stride: int = 1
 ):
     radii_file = os.path.join(os.path.dirname(__file__), 'data', 'radii.json')
     with open(radii_file, encoding='utf-8') as f:
@@ -103,7 +106,10 @@ def run_defect(
         output_prefix=output_dir,
         leaflet=leaflet,
         defect_types=defect_types,
-        defect_thresholds=defect_thresholds
+        defect_thresholds=defect_thresholds,
+        start=start,
+        stop=stop,
+        stride=stride
     )
     analyzer.run()
 
@@ -119,7 +125,9 @@ def run_defect(
         )
 
 
-if __name__ == '__main__':
+
+
+def build_parser():
     parser = argparse.ArgumentParser(description="Run packing defect analysis.")
     parser.add_argument('--top', required=True, help='Topology file (.gro, .psf)')
     parser.add_argument('--traj', required=True, help='Trajectory file (.xtc, .dcd)')
@@ -127,12 +135,23 @@ if __name__ == '__main__':
     parser.add_argument('--class', dest='class_json', help='Optional JSON with classification rules')
     parser.add_argument('--json-only', action='store_true', help='Use JSON only; skip topology files')
     parser.add_argument('--leaflet', choices=['both', 'up', 'dw'], default='both', help='choose leaflet?')
+    parser.add_argument("--start", type=int, default=None, help="first frame to include")
+    parser.add_argument("--stop",  type=int, default=None, help="stop before this frame")
+    parser.add_argument("--stride", type=int, default=1, help="take one every N frames")
+    return parser
+
+if __name__ == '__main__':
+    parser = build_parser()
     args = parser.parse_args()
+
     run_defect(
         args.top,
         args.traj,
         args.out,
         args.class_json,
         args.json_only,
-        args.leaflet
+        args.leaflet,
+        start=args.start,
+        stop=args.stop,
+        stride=args.stride
     )

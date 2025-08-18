@@ -13,7 +13,7 @@ def _make_universe_with_protein_and_others():
     u.add_TopologyAttr("resname", ["ALA", "ALA", "OTH", "OTH"])
     u.add_TopologyAttr("name", ["CA", "CB", "X", "Y"])
     u.add_TopologyAttr("resid", [1, 2, 3, 4])
-    # << add this >>
+
     u.add_TopologyAttr("masses", np.ones(n))  # any positive values are fine
 
     coords = np.array([

@@ -21,6 +21,9 @@ class PackingDefectAnalyzer:
         leaflet: str = 'both',
         defect_types=None,
         defect_thresholds=None,
+        start=None,
+        stop=None,
+        stride=1
     ):
         self.N = 50000
         self.universe = atomgroups[0].universe
@@ -33,6 +36,9 @@ class PackingDefectAnalyzer:
         self.leaflet = leaflet
         self.protein_atoms = self.universe.select_atoms('protein', updating=True)
         self._results = []
+        self.start = start
+        self.stop=stop
+        self.stride=stride
 
         self.defect_types = defect_types or ['PLacyl', 'TGglyc', 'TGacyl']
         self.defect_thresholds = (
@@ -42,7 +48,8 @@ class PackingDefectAnalyzer:
         validate_defect_thresholds(self.defect_types, self.defect_thresholds)
 
     def run(self):
-        for ts in self.universe.trajectory:
+        for ts in self.universe.trajectory[self.start:self.stop:self.stride]:
+            
             print(
                 f"Processing frame {ts.frame}, time: {ts.time:.3f}, "
                 f"pbc: {ts.dimensions[:3]}"
