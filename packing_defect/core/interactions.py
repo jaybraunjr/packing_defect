@@ -121,10 +121,8 @@ def process_multiple(input_dirs, output_csv, cutoff):
             for resid, resname in hits:
                 combined.append((lipid, frame_idx, resid, resname))
 
-    # Sort combined by lipid order, then numeric frame, then resid
     combined.sort(key=lambda x: (lipid_order.index(x[0]), x[1], x[2]))
 
-    # Write CSV
     os.makedirs(os.path.dirname(output_csv) or ".", exist_ok=True)
     with open(output_csv, 'w', newline='') as f:
         writer = csv.writer(f)
