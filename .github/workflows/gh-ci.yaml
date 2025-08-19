@@ -66,13 +66,16 @@ jobs:
         auto-activate-base: false
         show-channel-urls: true
 
+
     - name: Install MDAnalysis
       run: |
         if [[ "${{ matrix.mdanalysis-version }}" == "develop" ]]; then
+          pip install --upgrade pip setuptools wheel build
           pip install git+https://github.com/MDAnalysis/mdanalysis.git
         else
           mamba install -y -c conda-forge MDAnalysis
         fi
+
 
 
     # - name: Install MDAnalysis version
