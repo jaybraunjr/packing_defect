@@ -1,7 +1,7 @@
 [build-system]
 requires = [
-  "setuptools>=64",
-  "wheel",
+  "setuptools >=61.2",
+  "versioningit",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -23,7 +23,9 @@ dependencies = [
 keywords = [
     "molecular simulations",
 ]
-dynamic = ["version"]
+dynamic = [
+    "version",
+]
 
 [project.optional-dependencies]
 test = [
@@ -36,10 +38,55 @@ doc = [
     "sphinx_rtd_theme",
 ]
 
+# [project.urls]
+# source = "https://github.com/jaybraunjr/packing_defect"
+# documentation = "https://packing_defect.readthedocs.io"
+
 [tool.setuptools.packages.find]
 include = ["packing_defect"]
 
-[tool.setuptools_scm]
-version_scheme = "guess-next-dev"
-local_scheme = "node-and-date"
-tag_regex = "v?(?P<version>[0-9]+(?:\.[0-9]+){0,2})"
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = [
+    "packing_defect/tests",
+]
+
+[tool.black]
+line-length = 80
+
+[tool.versioningit]
+default-version = "1+unknown"
+
+[tool.versioningit.vcs]
+method = "git"
+# the below line expects tags to look like '1.0.2'.
+# if prefixing with a v, e.g. 'v1.0.2', change it to ["v*"]
+match = ["*"]
+
+[tool.versioningit.format]
+distance = "{base_version}+{distance}.{vcs}{rev}"
+dirty = "{base_version}+{distance}.{vcs}{rev}.dirty"
+distance-dirty = "{base_version}+{distance}.{vcs}{rev}.dirty"
+
+[tool.coverage.run]
+omit = [
+    # Omit the tests
+    "*/tests/*",
+]
+
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:",
+]
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 80
+
+[tool.yapf]
+COLUMN_LIMIT = 80
+INDENT_WIDTH = 4
+USE_TABS = false
