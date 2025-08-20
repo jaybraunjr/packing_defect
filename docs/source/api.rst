@@ -6,3 +6,4 @@ API Documentation
    :recursive:
 
    packing_defect
+   packing_defect.core

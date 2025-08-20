@@ -1,0 +1,12 @@
+packing\_defect.core.cluster
+============================
+
+.. automodule:: packing_defect.core.cluster
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      DefectClustering
+   

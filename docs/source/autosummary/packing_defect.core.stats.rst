@@ -1,0 +1,21 @@
+packing\_defect.core.stats
+==========================
+
+.. automodule:: packing_defect.core.stats
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      average_std_per_frame
+      cluster_positions
+      cluster_sizes
+      count_defect_types
+      defect_distribution
+      defect_distro_stats
+      global_avg_std_defect_size
+      main
+      open_gro
+      return_stats
+   

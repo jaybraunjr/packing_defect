@@ -18,7 +18,19 @@ import sys
 sys.path.insert(0, os.path.abspath("../.."))
 import packing_defect  # noqa
 
+import pkgutil
+import packing_defect
 
+def find_submodules(package):
+    return [
+        f"{package.__name__}.{name}"
+        for _, name, ispkg in pkgutil.walk_packages(package.__path__, package.__name__ + ".")
+    ]
+
+autosummary_generate = True
+
+# Add all submodules under packing_defect
+autosummary_imported_modules = find_submodules(packing_defect)
 
 # -- Project information -----------------------------------------------------
 
@@ -52,8 +64,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
-    "sphinx.ext.extlinks",
-    "mdanalysis_sphinx_theme",
+    "sphinx.ext.extlinks"
 ]
 
 autosummary_generate = True
@@ -63,6 +74,15 @@ autosummary_generate = True
 autodoc_mock_imports = [
     'packing_defect.tests'
 ]
+
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "inherited-members": True,
+    "show-inheritance": True,
+}
+
+
 napoleon_google_docstring = False
 napoleon_use_param = False
 napoleon_use_ivar = True
@@ -100,17 +120,19 @@ pygments_style = "default"
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "mdanalysis_sphinx_theme"
+# html_theme = "mdanalysis_sphinx_theme"
+html_theme = "sphinx_rtd_theme"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-html_theme_options = {
+# html_theme_options = {
 
-    "mda_official": False,
+#     "mda_official": False,
 
-}
+# }
+html_theme_options = {}
 
 # Set your logo and favicon here -- replace the placeholders!
 # An SVG with empty gears is provided for editing
