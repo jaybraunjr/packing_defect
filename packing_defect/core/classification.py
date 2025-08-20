@@ -1,8 +1,11 @@
 """
 classification.py
 
-Implements the Strategy pattern for atom classification, with a default that matches your original `default_classify` logic and an optional JSON-driven rule set.
+Implements the Strategy pattern for atom classification, with a default
+that matches your original `default_classify` logic and an optional
+JSON-driven rule set.
 """
+
 from abc import ABC, abstractmethod
 from typing import Dict, Tuple
 import json
@@ -25,6 +28,7 @@ class DefaultClassification(ClassificationStrategy):
     - For non-TRIO residues: tail atoms → 1, else → -1
     - For TRIO residues: glycerol atoms → 2, else → 3
     """
+
     def __init__(self):
         # build the same sets you used before
         self.tails = [f"C2{i}" for i in range(2, 23)] + \
@@ -36,7 +40,26 @@ class DefaultClassification(ClassificationStrategy):
                        'HA','HB','HS','HX','HY']
         self.PL_resnames = ('POPC','DOPE','SAPI')
 
+
+
     def classify(self, resname: str, atom_name: str) -> int:
+        """
+        Classify an atom by residue and atom name.
+
+        Parameters
+        ----------
+        resname : str
+            Residue name (e.g., ``POPC``, ``TRIO``).
+        atom_name : str
+            Atom name.
+
+        Returns
+        -------
+        int
+            Classification code (1, 2, 3, or -1).
+        """
+
+
         if resname in self.PL_resnames:
             return 1 if atom_name in self.tails else -1
         if resname == 'TRIO':
@@ -46,17 +69,33 @@ class DefaultClassification(ClassificationStrategy):
 
 class UserDictClassification(ClassificationStrategy):
     """
-    Load classification codes from a JSON file of the form:
-    {
-      "RES1": {"ATOM1": code, "ATOM2": code, ...},
-      "RES2": { ... }
-    }
+    Load classification codes from a JSON file of the form::
+
+        {
+          "RES1": {"ATOM1": code, "ATOM2": code, ...},
+          "RES2": { ... }
+        }
     """
+
     def __init__(self, rules: Dict[Tuple[str, str], int]):
         self.rules = rules
 
     @classmethod
     def from_json(cls, json_file: str) -> 'UserDictClassification':
+        """
+        Load rules from a JSON file.
+
+        Parameters
+        ----------
+        json_file : str
+            Path to JSON file.
+
+        Returns
+        -------
+        UserDictClassification
+            An instance loaded with the given rules.
+        """
+
         with open(json_file, 'r') as f:
             data: Dict[str, Dict[str, int]] = json.load(f)
         rules: Dict[Tuple[str, str], int] = {}
@@ -66,4 +105,21 @@ class UserDictClassification(ClassificationStrategy):
         return cls(rules)
 
     def classify(self, resname: str, atom_name: str) -> int:
+        """
+        Classify an atom by looking up a (resname, atom_name) pair.
+
+        Parameters
+        ----------
+        resname : str
+            Residue name.
+        atom_name : str
+            Atom name.
+
+        Returns
+        -------
+        int
+            Code if found in rules, otherwise ``-1``.
+        """
+
+
         return self.rules.get((resname, atom_name), -1)
