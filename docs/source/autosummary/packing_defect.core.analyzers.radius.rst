@@ -1,0 +1,12 @@
+packing\_defect.core.analyzers.radius
+=====================================
+
+.. automodule:: packing_defect.core.analyzers.radius
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      RadiusDefectAnalyzer
+   

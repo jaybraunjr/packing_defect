@@ -7,3 +7,4 @@ API Documentation
 
    packing_defect
    packing_defect.core
+   packing_defect.core.analyzers

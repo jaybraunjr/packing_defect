@@ -1,0 +1,13 @@
+packing\_defect.core.analyzers.base
+===================================
+
+.. automodule:: packing_defect.core.analyzers.base
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      AnalysisResult
+      BaseDefectAnalyzer
+   

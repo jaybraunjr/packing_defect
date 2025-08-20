@@ -1,35 +1,39 @@
 import numpy as np
 import math
+from packing_defect.core.cluster import DefectClustering
+
+def cluster_sizes(self, leaflet):
+    mask = self._binary_mask(leaflet)
+    return DefectClustering.cluster_sizes_from_mask(mask)
 
 
 
-
-def _make_graph(matrix):
-    graph = {}
-    nx, ny = matrix.shape
-    for (i, j), val in np.ndenumerate(matrix):
-        if val == 0:
-            continue
-        idx = i * ny + j
-        neighbors = []
-        for di in (-1, 0, 1):
-            for dj in (-1, 0, 1):
-                ni, nj = (i + di) % nx, (j + dj) % ny
-                if (di or dj) and matrix[ni, nj]:
-                    neighbors.append(ni * ny + nj)
-        graph[idx] = set(neighbors)
-    return graph
-
+# def _make_graph(matrix):
+#     graph = {}
+#     nx, ny = matrix.shape
+#     for (i, j), val in np.ndenumerate(matrix):
+#         if val == 0:
+#             continue
+#         idx = i * ny + j
+#         neighbors = []
+#         for di in (-1, 0, 1):
+#             for dj in (-1, 0, 1):
+#                 ni, nj = (i + di) % nx, (j + dj) % ny
+#                 if (di or dj) and matrix[ni, nj]:
+#                     neighbors.append(ni * ny + nj)
+#         graph[idx] = set(neighbors)
+#     return graph
 
 
-def _dfs(graph, start):
-    visited, stack = set(), [start]
-    while stack:
-        v = stack.pop()
-        if v not in visited:
-            visited.add(v)
-            stack.extend(graph[v] - visited)
-    return visited
+
+# def _dfs(graph, start):
+#     visited, stack = set(), [start]
+#     while stack:
+#         v = stack.pop()
+#         if v not in visited:
+#             visited.add(v)
+#             stack.extend(graph[v] - visited)
+#     return visited
 
 
 
@@ -139,17 +143,17 @@ class DefectGrid:
 
 
 
-    def detect_clusters(self, leaflet):
-        mask = self._binary_mask(leaflet)
-        graph = _make_graph(mask)
-        visited = set()
-        clusters = []
-        for node in graph:
-            if node not in visited:
-                component = _dfs(graph, node)
-                clusters.append(component)
-                visited.update(component)
-        return clusters
+    # def detect_clusters(self, leaflet):
+    #     mask = self._binary_mask(leaflet)
+    #     graph = _make_graph(mask)
+    #     visited = set()
+    #     clusters = []
+    #     for node in graph:
+    #         if node not in visited:
+    #             component = _dfs(graph, node)
+    #             clusters.append(component)
+    #             visited.update(component)
+    #     return clusters
 
 
 

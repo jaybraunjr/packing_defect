@@ -8,6 +8,5 @@ packing\_defect.run\_defect
 
    .. autosummary::
    
-      build_parser
-      run_defect
+      build_packing_analyzer
    

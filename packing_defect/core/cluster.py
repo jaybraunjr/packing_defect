@@ -3,9 +3,8 @@
 import numpy as np
 
 
-
-
 class DefectClustering:
+
     @staticmethod
     def defect_size(matrices, nbins, bin_max, fname, prob=True):
         bins = np.linspace(0, bin_max, nbins)
@@ -31,6 +30,16 @@ class DefectClustering:
         np.savetxt(fname, np.column_stack((binp, hist)), fmt="%8.5f")
 
 
+    @staticmethod
+    def cluster_sizes_from_mask(matrix: np.ndarray) -> list[int]:
+        graph = DefectClustering._make_graph(matrix)
+        visited, sizes = set(), []
+        for node in graph:
+            if node not in visited:
+                comp = DefectClustering._dfs(graph, node)
+                visited |= comp
+                sizes.append(len(comp))
+        return sizes
 
 
     @staticmethod
@@ -42,8 +51,6 @@ class DefectClustering:
                 visited.add(node)
                 stack.extend(graph[node] - visited)
         return visited
-
-
 
 
     @staticmethod

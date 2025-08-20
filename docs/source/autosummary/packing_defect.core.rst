@@ -10,8 +10,6 @@ packing\_defect.core
    :toctree:
    :recursive:
 
-   analyzer_defect
-   analyzer_radius
    classification
    cluster
    grid

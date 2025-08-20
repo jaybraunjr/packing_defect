@@ -8,6 +8,5 @@ packing\_defect.run\_radius
 
    .. autosummary::
    
-      plot_histogram
-      run_radius
+      build_radius_analyzer
    

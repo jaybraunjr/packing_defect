@@ -14,5 +14,6 @@
    data
    run_defect
    run_radius
+   run_utils
    tests
    utils
