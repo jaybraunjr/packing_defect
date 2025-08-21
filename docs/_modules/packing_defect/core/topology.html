@@ -1,0 +1,222 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>packing_defect.core.topology &mdash; packing_defect  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/mdakits-empty-favicon-template.svg"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            packing_defect
+              <img src="../../../_static/mdakits-placeholder-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">packing_defect</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">packing_defect.core.topology</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for packing_defect.core.topology</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="c1"># If you have a ClassificationStrategy class, import it for isinstance checks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">packing_defect.core.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassificationStrategy</span>
+
+
+<div class="viewcode-block" id="TopologyReader">
+<a class="viewcode-back" href="../../../autosummary/packing_defect.core.topology.html#packing_defect.core.topology.TopologyReader">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TopologyReader</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read CHARMM RTF/STR topology files (``*.rtf``, ``*.str``) and extract</span>
+<span class="sd">    atom properties for a given residue.</span>
+
+<span class="sd">    Each atom is mapped to a tuple ``(radius, code)``, where:</span>
+
+<span class="sd">    - **radius** is looked up from a provided radii dictionary</span>
+<span class="sd">    - **code** is determined using a classification strategy</span>
+
+<span class="sd">    The classifier may be either:</span>
+
+<span class="sd">    * An object with a ``.classify(resname, atom_name)`` method</span>
+<span class="sd">    * A plain function ``f(resname, atom_name) -&gt; int``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">radii</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+        <span class="n">classifier</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ClassificationStrategy</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">int</span><span class="p">]],</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        radii : dict of {str: float}</span>
+<span class="sd">            Mapping from atom type to radius.</span>
+<span class="sd">        classifier : ClassificationStrategy or callable</span>
+<span class="sd">            Either a strategy instance with ``classify(resname, atom_name)``</span>
+<span class="sd">            or a simple function ``(resname, atom_name) -&gt; int`` that</span>
+<span class="sd">            returns a classification code.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radii</span> <span class="o">=</span> <span class="n">radii</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">classifier</span>
+
+<div class="viewcode-block" id="TopologyReader.read">
+<a class="viewcode-back" href="../../../autosummary/packing_defect.core.topology.html#packing_defect.core.topology.TopologyReader.read">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">topo_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the ``RESI`` block for a given residue in the topology file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        resname : str</span>
+<span class="sd">            Residue name to search for (e.g., ``POPC``).</span>
+<span class="sd">        topo_path : str</span>
+<span class="sd">            Path to a CHARMM topology file (``.rtf`` or ``.str``).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict of {str: (float, int)}</span>
+<span class="sd">            Mapping from atom name to a tuple ``(radius, code)``.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        FileNotFoundError</span>
+<span class="sd">            If the topology file does not exist.</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If an atom type is not found in the radii map.</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the classifier is not callable or does not implement</span>
+<span class="sd">            ``.classify()``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">topo_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Topology file not found: </span><span class="si">{</span><span class="n">topo_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">output</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">in_resi</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;!&quot;</span><span class="p">):</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># Start when we see &quot;RESI &lt;resname&gt;&quot;</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RESI </span><span class="si">{</span><span class="n">resname</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">):</span>
+                    <span class="n">in_resi</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># End when BOND block starts</span>
+                <span class="k">if</span> <span class="n">in_resi</span> <span class="ow">and</span> <span class="n">line</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;BOND&quot;</span><span class="p">):</span>
+                    <span class="k">break</span>
+
+                <span class="c1"># Parse ATOM lines</span>
+                <span class="k">if</span> <span class="n">in_resi</span> <span class="ow">and</span> <span class="n">line</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;ATOM&quot;</span><span class="p">):</span>
+                    <span class="n">parts</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">atom_name</span><span class="p">,</span> <span class="n">atom_type</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+                    <span class="c1"># Look up radius</span>
+                    <span class="k">if</span> <span class="n">atom_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">radii</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Atom type &#39;</span><span class="si">{</span><span class="n">atom_type</span><span class="si">}</span><span class="s2">&#39; not in radii map&quot;</span><span class="p">)</span>
+                    <span class="n">radius</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radii</span><span class="p">[</span><span class="n">atom_type</span><span class="p">])</span>
+
+                    <span class="c1"># Classify: support both objects and bare functions</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">,</span> <span class="s2">&quot;classify&quot;</span><span class="p">):</span>
+                        <span class="n">code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="n">resname</span><span class="p">,</span> <span class="n">atom_name</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="nb">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">):</span>
+                        <span class="n">code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">(</span><span class="n">resname</span><span class="p">,</span> <span class="n">atom_name</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Classifier must be a function or have a .classify()&quot;</span><span class="p">)</span>
+
+                    <span class="n">output</span><span class="p">[</span><span class="n">atom_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">code</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, R. Jay Braun. Project structure based on the MDAnalysis Cookiecutter version 0.1.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

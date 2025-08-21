@@ -1,0 +1,258 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>packing_defect.core.stats &mdash; packing_defect  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+    <link rel="shortcut icon" href="../_static/mdakits-empty-favicon-template.svg"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="packing_defect.core.topology" href="packing_defect.core.topology.html" />
+    <link rel="prev" title="packing_defect.core.interactions" href="packing_defect.core.interactions.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            packing_defect
+              <img src="../_static/mdakits-placeholder-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="packing_defect.html">packing_defect</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="packing_defect.core.html">packing_defect.core</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="packing_defect.core.classification.html">packing_defect.core.classification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="packing_defect.core.cluster.html">packing_defect.core.cluster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="packing_defect.core.grid.html">packing_defect.core.grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="packing_defect.core.interactions.html">packing_defect.core.interactions</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">packing_defect.core.stats</a></li>
+<li class="toctree-l4"><a class="reference internal" href="packing_defect.core.topology.html">packing_defect.core.topology</a></li>
+<li class="toctree-l4"><a class="reference internal" href="packing_defect.core.vis.html">packing_defect.core.vis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="packing_defect.core.visualization.html">packing_defect.core.visualization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="packing_defect.core.writer.html">packing_defect.core.writer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.data.html">packing_defect.data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.run_defect.html">packing_defect.run_defect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.run_radius.html">packing_defect.run_radius</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.run_utils.html">packing_defect.run_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.utils.html">packing_defect.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="packing_defect.core.html">packing_defect.core</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.core.classification.html">packing_defect.core.classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.core.cluster.html">packing_defect.core.cluster</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.core.grid.html">packing_defect.core.grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.core.interactions.html">packing_defect.core.interactions</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">packing_defect.core.stats</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#packing_defect.core.stats.average_std_per_frame"><code class="docutils literal notranslate"><span class="pre">average_std_per_frame()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#packing_defect.core.stats.cluster_positions"><code class="docutils literal notranslate"><span class="pre">cluster_positions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#packing_defect.core.stats.cluster_sizes"><code class="docutils literal notranslate"><span class="pre">cluster_sizes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#packing_defect.core.stats.count_defect_types"><code class="docutils literal notranslate"><span class="pre">count_defect_types()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#packing_defect.core.stats.defect_distribution"><code class="docutils literal notranslate"><span class="pre">defect_distribution()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#packing_defect.core.stats.defect_distro_stats"><code class="docutils literal notranslate"><span class="pre">defect_distro_stats()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#packing_defect.core.stats.global_avg_std_defect_size"><code class="docutils literal notranslate"><span class="pre">global_avg_std_defect_size()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#packing_defect.core.stats.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#packing_defect.core.stats.open_gro"><code class="docutils literal notranslate"><span class="pre">open_gro()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#packing_defect.core.stats.return_stats"><code class="docutils literal notranslate"><span class="pre">return_stats()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.core.topology.html">packing_defect.core.topology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.core.vis.html">packing_defect.core.vis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.core.visualization.html">packing_defect.core.visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.core.writer.html">packing_defect.core.writer</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="packing_defect.core.analyzers.html">packing_defect.core.analyzers</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">packing_defect</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API Documentation</a></li>
+          <li class="breadcrumb-item"><a href="packing_defect.html">packing_defect</a></li>
+          <li class="breadcrumb-item"><a href="packing_defect.core.html">packing_defect.core</a></li>
+      <li class="breadcrumb-item active">packing_defect.core.stats</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/autosummary/packing_defect.core.stats.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-packing_defect.core.stats">
+<span id="packing-defect-core-stats"></span><h1>packing_defect.core.stats<a class="headerlink" href="#module-packing_defect.core.stats" title="Link to this heading"></a></h1>
+<p>Statistics utilities for packing_defect.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#packing_defect.core.stats.average_std_per_frame" title="packing_defect.core.stats.average_std_per_frame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">average_std_per_frame</span></code></a>(distros)</p></td>
+<td><p>Return dict mapping frame_name to (mean, stdev) of all defects in that frame.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#packing_defect.core.stats.cluster_positions" title="packing_defect.core.stats.cluster_positions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cluster_positions</span></code></a>(positions)</p></td>
+<td><p>Return a list of clusters, each as a set of (i, j) tuples.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#packing_defect.core.stats.cluster_sizes" title="packing_defect.core.stats.cluster_sizes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cluster_sizes</span></code></a>(positions)</p></td>
+<td><p>Return cluster sizes from a set of positions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#packing_defect.core.stats.count_defect_types" title="packing_defect.core.stats.count_defect_types"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count_defect_types</span></code></a>(gro_dir, cutoff)</p></td>
+<td><p>Count number of clusters ≥ cutoff in each frame GRO file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#packing_defect.core.stats.defect_distribution" title="packing_defect.core.stats.defect_distribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">defect_distribution</span></code></a>(gro_dir)</p></td>
+<td><p>Returns dict mapping frame_name to Counter of defect sizes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#packing_defect.core.stats.defect_distro_stats" title="packing_defect.core.stats.defect_distro_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">defect_distro_stats</span></code></a>(distros)</p></td>
+<td><p>Compute mean and stdev for each defect size across frames.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#packing_defect.core.stats.global_avg_std_defect_size" title="packing_defect.core.stats.global_avg_std_defect_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_avg_std_defect_size</span></code></a>(distros)</p></td>
+<td><p>Return global (mean, stdev) across all frames and sizes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#packing_defect.core.stats.main" title="packing_defect.core.stats.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#packing_defect.core.stats.open_gro" title="packing_defect.core.stats.open_gro"><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_gro</span></code></a>(gro_path)</p></td>
+<td><p>Open a GRO file and return a set of integer (i, j) grid positions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#packing_defect.core.stats.return_stats" title="packing_defect.core.stats.return_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">return_stats</span></code></a>(gro_dir, cutoff)</p></td>
+<td><p>Return summary statistics (mean, median, stdev) of defect counts.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="packing_defect.core.stats.average_std_per_frame">
+<span class="sig-prename descclassname"><span class="pre">packing_defect.core.stats.</span></span><span class="sig-name descname"><span class="pre">average_std_per_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distros</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/packing_defect/core/stats.html#average_std_per_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packing_defect.core.stats.average_std_per_frame" title="Link to this definition"></a></dt>
+<dd><p>Return dict mapping frame_name to (mean, stdev) of all defects in that frame.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="packing_defect.core.stats.cluster_positions">
+<span class="sig-prename descclassname"><span class="pre">packing_defect.core.stats.</span></span><span class="sig-name descname"><span class="pre">cluster_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/packing_defect/core/stats.html#cluster_positions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packing_defect.core.stats.cluster_positions" title="Link to this definition"></a></dt>
+<dd><p>Return a list of clusters, each as a set of (i, j) tuples.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="packing_defect.core.stats.cluster_sizes">
+<span class="sig-prename descclassname"><span class="pre">packing_defect.core.stats.</span></span><span class="sig-name descname"><span class="pre">cluster_sizes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/packing_defect/core/stats.html#cluster_sizes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packing_defect.core.stats.cluster_sizes" title="Link to this definition"></a></dt>
+<dd><p>Return cluster sizes from a set of positions.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="packing_defect.core.stats.count_defect_types">
+<span class="sig-prename descclassname"><span class="pre">packing_defect.core.stats.</span></span><span class="sig-name descname"><span class="pre">count_defect_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gro_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/packing_defect/core/stats.html#count_defect_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packing_defect.core.stats.count_defect_types" title="Link to this definition"></a></dt>
+<dd><p>Count number of clusters ≥ cutoff in each frame GRO file.
+Returns list of (frame_name, count).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="packing_defect.core.stats.defect_distribution">
+<span class="sig-prename descclassname"><span class="pre">packing_defect.core.stats.</span></span><span class="sig-name descname"><span class="pre">defect_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gro_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/packing_defect/core/stats.html#defect_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packing_defect.core.stats.defect_distribution" title="Link to this definition"></a></dt>
+<dd><p>Returns dict mapping frame_name to Counter of defect sizes.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="packing_defect.core.stats.defect_distro_stats">
+<span class="sig-prename descclassname"><span class="pre">packing_defect.core.stats.</span></span><span class="sig-name descname"><span class="pre">defect_distro_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distros</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/packing_defect/core/stats.html#defect_distro_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packing_defect.core.stats.defect_distro_stats" title="Link to this definition"></a></dt>
+<dd><p>Compute mean and stdev for each defect size across frames.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="packing_defect.core.stats.global_avg_std_defect_size">
+<span class="sig-prename descclassname"><span class="pre">packing_defect.core.stats.</span></span><span class="sig-name descname"><span class="pre">global_avg_std_defect_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distros</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/packing_defect/core/stats.html#global_avg_std_defect_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packing_defect.core.stats.global_avg_std_defect_size" title="Link to this definition"></a></dt>
+<dd><p>Return global (mean, stdev) across all frames and sizes.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="packing_defect.core.stats.main">
+<span class="sig-prename descclassname"><span class="pre">packing_defect.core.stats.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/packing_defect/core/stats.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packing_defect.core.stats.main" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="packing_defect.core.stats.open_gro">
+<span class="sig-prename descclassname"><span class="pre">packing_defect.core.stats.</span></span><span class="sig-name descname"><span class="pre">open_gro</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gro_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/packing_defect/core/stats.html#open_gro"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packing_defect.core.stats.open_gro" title="Link to this definition"></a></dt>
+<dd><p>Open a GRO file and return a set of integer (i, j) grid positions.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="packing_defect.core.stats.return_stats">
+<span class="sig-prename descclassname"><span class="pre">packing_defect.core.stats.</span></span><span class="sig-name descname"><span class="pre">return_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gro_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/packing_defect/core/stats.html#return_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packing_defect.core.stats.return_stats" title="Link to this definition"></a></dt>
+<dd><p>Return summary statistics (mean, median, stdev) of defect counts.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="packing_defect.core.interactions.html" class="btn btn-neutral float-left" title="packing_defect.core.interactions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="packing_defect.core.topology.html" class="btn btn-neutral float-right" title="packing_defect.core.topology" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, R. Jay Braun. Project structure based on the MDAnalysis Cookiecutter version 0.1.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

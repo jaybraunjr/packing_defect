@@ -1,0 +1,325 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>packing_defect.core.interactions &mdash; packing_defect  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/mdakits-empty-favicon-template.svg"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            packing_defect
+              <img src="../../../_static/mdakits-placeholder-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">packing_defect</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">packing_defect.core.interactions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for packing_defect.core.interactions</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">interactions.py</span>
+
+<span class="sd">Tools for detecting protein–defect interactions in lipid membrane simulations.</span>
+<span class="sd">This module can process multiple lipid types, identify protein residues that </span>
+<span class="sd">interact with packing defects within a distance cutoff, and write results to a CSV.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">MDAnalysis</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mda</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+
+
+<div class="viewcode-block" id="ProteinDefectInteractions">
+<a class="viewcode-back" href="../../../autosummary/packing_defect.core.interactions.html#packing_defect.core.interactions.ProteinDefectInteractions">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProteinDefectInteractions</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Tracks protein–defect interactions in a single trajectory.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cutoff : float, optional</span>
+<span class="sd">        Minimum distance in Å between a protein residue center of mass</span>
+<span class="sd">        and any defect atom for the residue to be counted as interacting.</span>
+<span class="sd">        Default is 0.1 Å.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cutoff : float</span>
+<span class="sd">        Interaction distance threshold in Å.</span>
+<span class="sd">    results : dict</span>
+<span class="sd">        Mapping from frame index → list of (resid, resname) tuples for interacting residues.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="ProteinDefectInteractions.track_frame">
+<a class="viewcode-back" href="../../../autosummary/packing_defect.core.interactions.html#packing_defect.core.interactions.ProteinDefectInteractions.track_frame">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">track_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Analyze a single frame and record protein residues near defects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        universe : MDAnalysis.Universe</span>
+<span class="sd">            Universe containing the current frame.</span>
+<span class="sd">        frame_index : int or str</span>
+<span class="sd">            Index or identifier for the current frame.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - All protein residues whose center of mass lies within `cutoff` Å</span>
+<span class="sd">          of any defect atom are recorded.</span>
+<span class="sd">        - Defect atoms are defined as all atoms not belonging to the protein.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">protein</span> <span class="o">=</span> <span class="n">universe</span><span class="o">.</span><span class="n">select_atoms</span><span class="p">(</span><span class="s2">&quot;protein&quot;</span><span class="p">)</span>
+        <span class="n">defect_atoms</span> <span class="o">=</span> <span class="n">universe</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">protein</span><span class="p">)</span>
+        <span class="n">defect_positions</span> <span class="o">=</span> <span class="n">defect_atoms</span><span class="o">.</span><span class="n">positions</span>
+
+        <span class="n">hits</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">residue</span> <span class="ow">in</span> <span class="n">protein</span><span class="o">.</span><span class="n">residues</span><span class="p">:</span>
+            <span class="n">com</span> <span class="o">=</span> <span class="n">residue</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">center_of_mass</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">defect_positions</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">dists</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">defect_positions</span> <span class="o">-</span> <span class="n">com</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">dists</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">):</span>
+                <span class="n">hits</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">residue</span><span class="o">.</span><span class="n">resid</span><span class="p">,</span> <span class="n">residue</span><span class="o">.</span><span class="n">resname</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="n">frame_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">hits</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="process_multiple">
+<a class="viewcode-back" href="../../../autosummary/packing_defect.core.interactions.html#packing_defect.core.interactions.process_multiple">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">process_multiple</span><span class="p">(</span><span class="n">input_dirs</span><span class="p">,</span> <span class="n">output_csv</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Process multiple lipid-type directories and record protein–defect interactions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_dirs : list of str</span>
+<span class="sd">        Paths to directories containing `.gro` or `.pdb` files for each lipid type.</span>
+<span class="sd">        Each directory is treated as a separate lipid type, and its basename</span>
+<span class="sd">        is used as the lipid label in the output.</span>
+<span class="sd">    output_csv : str</span>
+<span class="sd">        Path to the CSV file to be written. Parent directories will be created if necessary.</span>
+<span class="sd">    cutoff : float</span>
+<span class="sd">        Distance cutoff in Å for protein–defect interactions.</span>
+
+<span class="sd">    Output CSV Format</span>
+<span class="sd">    -----------------</span>
+<span class="sd">    type, frame, resid, resname</span>
+<span class="sd">        - type : lipid type (directory name)</span>
+<span class="sd">        - frame : frame index (int or str extracted from filename)</span>
+<span class="sd">        - resid : residue ID of interacting protein residue</span>
+<span class="sd">        - resname : residue name of interacting protein residue</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - Frame index is parsed from the filename by extracting the last underscore-delimited</span>
+<span class="sd">      component before the extension. If parsing fails, the filename stem is used as-is.</span>
+<span class="sd">    - The CSV rows are sorted by lipid type (order given in `input_dirs`), then frame index,</span>
+<span class="sd">      then residue ID.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">combined</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">lipid_order</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">input_dirs</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">input_dir</span> <span class="ow">in</span> <span class="n">input_dirs</span><span class="p">:</span>
+        <span class="n">lipid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">input_dir</span><span class="p">)</span>
+        <span class="n">tracker</span> <span class="o">=</span> <span class="n">ProteinDefectInteractions</span><span class="p">(</span><span class="n">cutoff</span><span class="o">=</span><span class="n">cutoff</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">input_dir</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">fname</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.gro&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">fname</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.pdb&quot;</span><span class="p">)):</span>
+                <span class="k">continue</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing </span><span class="si">{</span><span class="n">lipid</span><span class="si">}</span><span class="s2"> frame </span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="n">mda</span><span class="o">.</span><span class="n">Universe</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">frame_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fname</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">frame_index</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fname</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">tracker</span><span class="o">.</span><span class="n">track_frame</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">)</span>
+        <span class="c1"># Collect hits with lipid tag</span>
+        <span class="k">for</span> <span class="n">frame_idx</span><span class="p">,</span> <span class="n">hits</span> <span class="ow">in</span> <span class="n">tracker</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">resid</span><span class="p">,</span> <span class="n">resname</span> <span class="ow">in</span> <span class="n">hits</span><span class="p">:</span>
+                <span class="n">combined</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lipid</span><span class="p">,</span> <span class="n">frame_idx</span><span class="p">,</span> <span class="n">resid</span><span class="p">,</span> <span class="n">resname</span><span class="p">))</span>
+
+    <span class="n">combined</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">lipid_order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">output_csv</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_csv</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;frame&quot;</span><span class="p">,</span> <span class="s2">&quot;resid&quot;</span><span class="p">,</span> <span class="s2">&quot;resname&quot;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">lipid</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">resid</span><span class="p">,</span> <span class="n">resname</span> <span class="ow">in</span> <span class="n">combined</span><span class="p">:</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="n">lipid</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">resid</span><span class="p">,</span> <span class="n">resname</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Combined CSV written to </span><span class="si">{</span><span class="n">output_csv</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="run">
+<a class="viewcode-back" href="../../../autosummary/packing_defect.core.interactions.html#packing_defect.core.interactions.run">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">input_dirs</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">output_csv</span><span class="o">=</span><span class="s2">&quot;combined_interactions.csv&quot;</span><span class="p">,</span> <span class="n">as_dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute protein–defect interactions, write the CSV, and return results.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_dirs : list of str</span>
+<span class="sd">        Directories containing .gro/.pdb frames, one per lipid type.</span>
+<span class="sd">    cutoff : float, optional</span>
+<span class="sd">        Distance cutoff in Å. Default 1.0.</span>
+<span class="sd">    output_csv : str, optional</span>
+<span class="sd">        Output CSV path. Default &quot;combined_interactions.csv&quot;.</span>
+<span class="sd">    as_dataframe : bool, optional</span>
+<span class="sd">        If True and pandas is available, return a pandas DataFrame.</span>
+<span class="sd">        Otherwise return a list of dicts.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.DataFrame or list[dict]</span>
+<span class="sd">        Rows with columns: type, frame, resid, resname.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Write CSV using the existing logic</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">output_csv</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">process_multiple</span><span class="p">(</span><span class="n">input_dirs</span><span class="p">,</span> <span class="n">output_csv</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">as_dataframe</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">output_csv</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_csv</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;resid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;resid&quot;</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rows</span></div>
+
+
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Track protein–defect interactions for multiple lipid types&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;--input-dirs&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;List of directories containing .gro/.pdb frames (one per lipid)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;--output-csv&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path for the combined CSV (default: ./combined_interactions.csv)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="s2">&quot;--cutoff&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Distance cutoff in Å for interaction&quot;</span>
+    <span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="n">output_csv</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">output_csv</span> <span class="ow">or</span> <span class="s2">&quot;combined_interactions.csv&quot;</span>
+    <span class="n">process_multiple</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">input_dirs</span><span class="p">,</span> <span class="n">output_csv</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">cutoff</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, R. Jay Braun. Project structure based on the MDAnalysis Cookiecutter version 0.1.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

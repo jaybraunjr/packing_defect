@@ -1,0 +1,345 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>packing_defect.core.analyzers.packing &mdash; packing_defect  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/mdakits-empty-favicon-template.svg"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            packing_defect
+              <img src="../../../../_static/mdakits-placeholder-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">packing_defect</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">packing_defect.core.analyzers.packing</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for packing_defect.core.analyzers.packing</h1><div class="highlight"><pre>
+<span></span><span class="c1"># packing_defect/core/analyzers/packing.py</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">MDAnalysis</span> <span class="kn">import</span> <span class="n">AtomGroup</span>
+<span class="kn">from</span> <span class="nn">MDAnalysis.exceptions</span> <span class="kn">import</span> <span class="n">NoDataError</span>
+
+<span class="kn">from</span> <span class="nn">packing_defect.core.analyzers.base</span> <span class="kn">import</span> <span class="n">BaseDefectAnalyzer</span>
+<span class="kn">from</span> <span class="nn">packing_defect.core.grid</span> <span class="kn">import</span> <span class="n">DefectGrid</span>
+<span class="kn">from</span> <span class="nn">packing_defect.core.cluster</span> <span class="kn">import</span> <span class="n">DefectClustering</span>
+<span class="kn">from</span> <span class="nn">packing_defect.core.writer</span> <span class="kn">import</span> <span class="n">write_defect_coordinates</span>
+<span class="kn">from</span> <span class="nn">packing_defect.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">apply_pbc</span><span class="p">,</span>
+    <span class="n">initialize_empty_defect_universe</span><span class="p">,</span>
+    <span class="n">validate_defect_thresholds</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="PackingDefectAnalyzer">
+<a class="viewcode-back" href="../../../../autosummary/packing_defect.core.analyzers.packing.html#packing_defect.core.analyzers.packing.PackingDefectAnalyzer">[docs]</a>
+<span class="k">class</span> <span class="nc">PackingDefectAnalyzer</span><span class="p">(</span><span class="n">BaseDefectAnalyzer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Analyze packing defects using atom radii + classification codes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">universe</span><span class="p">,</span>
+        <span class="n">atomgroups</span><span class="p">,</span>
+        <span class="n">radii</span><span class="p">,</span>
+        <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;./&quot;</span><span class="p">,</span>
+        <span class="n">leaflet</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;both&quot;</span><span class="p">,</span>
+        <span class="n">defect_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">defect_thresholds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">stop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">universe</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>  <span class="c1"># from BaseDefectAnalyzer</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">50000</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">trajectory</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atomgroups</span> <span class="o">=</span> <span class="n">atomgroups</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dy</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radii</span> <span class="o">=</span> <span class="n">radii</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">leaflet</span> <span class="o">=</span> <span class="n">leaflet</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">protein_atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">select_atoms</span><span class="p">(</span><span class="s2">&quot;protein&quot;</span><span class="p">,</span> <span class="n">updating</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="n">stop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stride</span> <span class="o">=</span> <span class="n">stride</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">defect_types</span> <span class="o">=</span> <span class="n">defect_types</span> <span class="ow">or</span> <span class="p">[</span><span class="s2">&quot;PLacyl&quot;</span><span class="p">,</span> <span class="s2">&quot;TGglyc&quot;</span><span class="p">,</span> <span class="s2">&quot;TGacyl&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defect_thresholds</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">defect_thresholds</span>
+            <span class="k">if</span> <span class="n">defect_thresholds</span>
+            <span class="k">else</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">defect_types</span><span class="p">)}</span>
+        <span class="p">)</span>
+        <span class="n">validate_defect_thresholds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">defect_types</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect_thresholds</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defect_cluster_masks</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># ------------------- Required overrides -------------------</span>
+
+<div class="viewcode-block" id="PackingDefectAnalyzer.run">
+<a class="viewcode-back" href="../../../../autosummary/packing_defect.core.analyzers.packing.html#packing_defect.core.analyzers.packing.PackingDefectAnalyzer.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run analysis over trajectory frames.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">ts</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">trajectory</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">stride</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Processing frame </span><span class="si">{</span><span class="n">ts</span><span class="o">.</span><span class="n">frame</span><span class="si">}</span><span class="s2">, time: </span><span class="si">{</span><span class="n">ts</span><span class="o">.</span><span class="n">time</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;pbc: </span><span class="si">{</span><span class="n">ts</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyze_frame</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_finalize</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No frames processed.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PackingDefectAnalyzer.plot">
+<a class="viewcode-back" href="../../../../autosummary/packing_defect.core.analyzers.packing.html#packing_defect.core.analyzers.packing.PackingDefectAnalyzer.plot">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Placeholder plotting method (extend later).&quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+        <span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">masks</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect_cluster_masks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">counts</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">masks</span><span class="p">]</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">d</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Defect counts over trajectory&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Frame index&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Count&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+    <span class="c1"># ------------------- Internal helpers -------------------</span>
+
+    <span class="k">def</span> <span class="nf">_analyze_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ts</span><span class="p">):</span>
+        <span class="n">ag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomgroups</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">dimensions</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">pbc</span> <span class="o">=</span> <span class="n">dim</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">ag</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">positions</span> <span class="o">=</span> <span class="n">apply_pbc</span><span class="p">(</span><span class="n">ag</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">positions</span><span class="p">,</span> <span class="n">pbc</span><span class="p">)</span>
+
+        <span class="n">hz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">ag</span><span class="o">.</span><span class="n">select_atoms</span><span class="p">(</span><span class="s2">&quot;name P&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">positions</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">DefectGrid</span><span class="p">(</span><span class="n">box_xy</span><span class="o">=</span><span class="p">(</span><span class="n">pbc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pbc</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dx</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dy</span><span class="p">,</span> <span class="n">hz</span><span class="o">=</span><span class="n">hz</span><span class="p">)</span>
+        <span class="n">zlim</span><span class="p">,</span> <span class="n">PL</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_classify_leaflets</span><span class="p">(</span><span class="n">ag</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">grid</span><span class="p">,</span> <span class="n">PL</span><span class="p">[</span><span class="s2">&quot;up&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">5</span><span class="p">,</span> <span class="n">PL</span><span class="p">[</span><span class="s2">&quot;dw&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">5</span><span class="p">,</span> <span class="n">dim</span>
+    
+
+    <span class="k">def</span> <span class="nf">_classify_leaflets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ag</span><span class="p">:</span> <span class="n">AtomGroup</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">DefectGrid</span><span class="p">):</span>
+        <span class="n">hz</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">hz</span>
+
+        <span class="k">def</span> <span class="nf">_mean_z</span><span class="p">(</span><span class="n">sel</span><span class="p">):</span>
+            <span class="c1"># Safe mean for massless test systems; fall back to hz if empty</span>
+            <span class="k">return</span> <span class="n">hz</span> <span class="k">if</span> <span class="n">sel</span><span class="o">.</span><span class="n">n_atoms</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">sel</span><span class="o">.</span><span class="n">positions</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+
+        <span class="c1"># Use mean z instead of center_of_mass (no mass required)</span>
+        <span class="n">PL</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;up&quot;</span><span class="p">:</span> <span class="n">_mean_z</span><span class="p">(</span><span class="n">ag</span><span class="o">.</span><span class="n">select_atoms</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name P and prop z &gt; </span><span class="si">{</span><span class="n">hz</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)),</span>
+            <span class="s2">&quot;dw&quot;</span><span class="p">:</span> <span class="n">_mean_z</span><span class="p">(</span><span class="n">ag</span><span class="o">.</span><span class="n">select_atoms</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name P and prop z &lt; </span><span class="si">{</span><span class="n">hz</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)),</span>
+        <span class="p">}</span>
+
+        <span class="n">atoms</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">leaflet</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="s2">&quot;up&quot;</span><span class="p">):</span>
+            <span class="n">atoms</span><span class="p">[</span><span class="s2">&quot;up&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ag</span><span class="o">.</span><span class="n">select_atoms</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;prop z &gt; </span><span class="si">{</span><span class="n">PL</span><span class="p">[</span><span class="s2">&quot;up&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">10</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">leaflet</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="s2">&quot;dw&quot;</span><span class="p">):</span>
+            <span class="n">atoms</span><span class="p">[</span><span class="s2">&quot;dw&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ag</span><span class="o">.</span><span class="n">select_atoms</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;prop z &lt; </span><span class="si">{</span><span class="n">PL</span><span class="p">[</span><span class="s2">&quot;dw&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">10</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">leaflet</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">atoms</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">group</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">radius</span><span class="p">,</span> <span class="n">code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">radii</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">resname</span><span class="p">][</span><span class="n">atom</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">position</span>
+                <span class="n">grid</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">leaflet</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;up&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ag</span><span class="o">.</span><span class="n">positions</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]),</span> <span class="s2">&quot;dw&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">ag</span><span class="o">.</span><span class="n">positions</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])},</span> <span class="n">PL</span>
+
+
+
+
+    <span class="c1"># def _classify_leaflets(self, ag: AtomGroup, grid: DefectGrid):</span>
+    <span class="c1">#     hz = grid.hz</span>
+    <span class="c1">#     PL = {</span>
+    <span class="c1">#         &quot;up&quot;: ag.select_atoms(f&quot;name P and prop z &gt; {hz}&quot;).center_of_mass()[2],</span>
+    <span class="c1">#         &quot;dw&quot;: ag.select_atoms(f&quot;name P and prop z &lt; {hz}&quot;).center_of_mass()[2],</span>
+    <span class="c1">#     }</span>
+    <span class="c1">#     hz = float(grid.hz)</span>
+
+    <span class="c1">#     sel_up = ag.select_atoms(f&quot;name P and prop z &gt; {hz}&quot;)</span>
+    <span class="c1">#     sel_dw = ag.select_atoms(f&quot;name P and prop z &lt; {hz}&quot;)</span>
+
+    <span class="c1">#     def _z_layer(sel, default):</span>
+    <span class="c1">#         # Prefer center_of_mass (uses masses) when available; otherwise mean z.</span>
+    <span class="c1">#         if sel.n_atoms == 0:</span>
+    <span class="c1">#             return float(default)</span>
+    <span class="c1">#         try:</span>
+    <span class="c1">#             return float(sel.center_of_mass()[2])</span>
+    <span class="c1">#         except NoDataError:</span>
+    <span class="c1">#             return float(sel.positions[:, 2].mean())</span>
+    <span class="c1">#         except Exception:</span>
+    <span class="c1">#             # Any other oddity: be conservative</span>
+    <span class="c1">#             return float(sel.positions[:, 2].mean()) if sel.n_atoms else float(default)</span>
+
+    <span class="c1">#     PL = {&quot;up&quot;: _z_layer(sel_up, hz + 5.0), &quot;dw&quot;: _z_layer(sel_dw, hz - 5.0)}</span>
+
+    <span class="c1">#     atoms = {}</span>
+    <span class="c1">#     if self.leaflet in (&quot;both&quot;, &quot;up&quot;):</span>
+    <span class="c1">#         atoms[&quot;up&quot;] = ag.select_atoms(f&#39;prop z &gt; {PL[&quot;up&quot;] - 10}&#39;)</span>
+    <span class="c1">#     if self.leaflet in (&quot;both&quot;, &quot;dw&quot;):</span>
+    <span class="c1">#         atoms[&quot;dw&quot;] = ag.select_atoms(f&#39;prop z &lt; {PL[&quot;dw&quot;] + 10}&#39;)</span>
+
+    <span class="c1">#     for leaflet, group in atoms.items():</span>
+    <span class="c1">#         for atom in group:</span>
+    <span class="c1">#             try:</span>
+    <span class="c1">#                 radius, code = self.radii[atom.resname][atom.name]</span>
+    <span class="c1">#             except KeyError:</span>
+    <span class="c1">#                 continue</span>
+    <span class="c1">#             x, y, z = atom.position</span>
+    <span class="c1">#             grid.update(x, y, z, radius, code, leaflet)</span>
+
+    <span class="c1">#     return {&quot;up&quot;: np.max(ag.positions[:, 2]), &quot;dw&quot;: np.min(ag.positions[:, 2])}, PL</span>
+
+    <span class="k">def</span> <span class="nf">_finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">grids</span><span class="p">,</span> <span class="n">zlimup</span><span class="p">,</span> <span class="n">zlimdw</span><span class="p">,</span> <span class="n">dims</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">initialize_empty_defect_universe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">),</span> <span class="n">dims</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span>
+        <span class="n">defect_uni</span> <span class="o">=</span> <span class="p">{</span><span class="n">d</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect_types</span><span class="p">}</span>
+        <span class="n">defect_clu</span> <span class="o">=</span> <span class="p">{</span><span class="n">d</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect_types</span><span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect_types</span><span class="p">:</span>
+            <span class="n">threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect_thresholds</span><span class="p">[</span><span class="n">d</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ts</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">defect_uni</span><span class="p">[</span><span class="n">d</span><span class="p">]</span><span class="o">.</span><span class="n">trajectory</span><span class="p">):</span>
+                <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">mask_up</span> <span class="o">=</span> <span class="n">grids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">get_binary_mask</span><span class="p">(</span><span class="s2">&quot;up&quot;</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
+                <span class="n">defect_clu</span><span class="p">[</span><span class="n">d</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mask_up</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+                <span class="n">num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_populate_defect_coords</span><span class="p">(</span>
+                    <span class="n">threshold</span><span class="p">,</span> <span class="n">grids</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">zlimup</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">defect_uni</span><span class="p">[</span><span class="n">d</span><span class="p">],</span> <span class="n">num</span><span class="p">,</span> <span class="s2">&quot;up&quot;</span>
+                <span class="p">)</span>
+                <span class="n">mask_dw</span> <span class="o">=</span> <span class="n">grids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">get_binary_mask</span><span class="p">(</span><span class="s2">&quot;dw&quot;</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
+                <span class="n">defect_clu</span><span class="p">[</span><span class="n">d</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mask_dw</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_populate_defect_coords</span><span class="p">(</span>
+                    <span class="n">threshold</span><span class="p">,</span> <span class="n">grids</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">zlimdw</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">defect_uni</span><span class="p">[</span><span class="n">d</span><span class="p">],</span> <span class="n">num</span><span class="p">,</span> <span class="s2">&quot;dw&quot;</span>
+                <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_outputs</span><span class="p">(</span><span class="n">defect_uni</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defect_cluster_masks</span> <span class="o">=</span> <span class="n">defect_clu</span>
+
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect_types</span><span class="p">:</span>
+            <span class="n">dat_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2">.dat&quot;</span><span class="p">)</span>
+            <span class="n">DefectClustering</span><span class="o">.</span><span class="n">defect_size</span><span class="p">(</span>
+                <span class="n">defect_clu</span><span class="p">[</span><span class="n">d</span><span class="p">],</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">bin_max</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="n">dat_path</span><span class="p">,</span> <span class="n">prob</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_populate_defect_coords</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">DefectGrid</span><span class="p">,</span> <span class="n">zlim</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">num</span><span class="p">,</span> <span class="n">leaflet</span>
+    <span class="p">):</span>
+        <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">get_coordinates</span><span class="p">(</span><span class="n">leaflet</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">num</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">universe</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="n">num</span><span class="p">]</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">zlim</span><span class="p">])</span>
+            <span class="n">num</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">num</span>
+
+    <span class="k">def</span> <span class="nf">_write_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defect_uni</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">defect_uni</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">outdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ts</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">trajectory</span><span class="p">):</span>
+                <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">protein_atoms</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">trajectory</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2">_frame_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">.gro&quot;</span><span class="p">)</span>
+                <span class="n">write_defect_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">protein_atoms</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">atoms</span><span class="p">,</span> <span class="n">ts</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, R. Jay Braun. Project structure based on the MDAnalysis Cookiecutter version 0.1.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

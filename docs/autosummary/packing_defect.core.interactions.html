@@ -1,0 +1,275 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>packing_defect.core.interactions &mdash; packing_defect  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+    <link rel="shortcut icon" href="../_static/mdakits-empty-favicon-template.svg"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="packing_defect.core.stats" href="packing_defect.core.stats.html" />
+    <link rel="prev" title="packing_defect.core.grid" href="packing_defect.core.grid.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            packing_defect
+              <img src="../_static/mdakits-placeholder-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="packing_defect.html">packing_defect</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="packing_defect.core.html">packing_defect.core</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="packing_defect.core.classification.html">packing_defect.core.classification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="packing_defect.core.cluster.html">packing_defect.core.cluster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="packing_defect.core.grid.html">packing_defect.core.grid</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">packing_defect.core.interactions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="packing_defect.core.stats.html">packing_defect.core.stats</a></li>
+<li class="toctree-l4"><a class="reference internal" href="packing_defect.core.topology.html">packing_defect.core.topology</a></li>
+<li class="toctree-l4"><a class="reference internal" href="packing_defect.core.vis.html">packing_defect.core.vis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="packing_defect.core.visualization.html">packing_defect.core.visualization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="packing_defect.core.writer.html">packing_defect.core.writer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.data.html">packing_defect.data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.run_defect.html">packing_defect.run_defect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.run_radius.html">packing_defect.run_radius</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.run_utils.html">packing_defect.run_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.utils.html">packing_defect.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="packing_defect.core.html">packing_defect.core</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.core.classification.html">packing_defect.core.classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.core.cluster.html">packing_defect.core.cluster</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.core.grid.html">packing_defect.core.grid</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">packing_defect.core.interactions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#packing_defect.core.interactions.ProteinDefectInteractions"><code class="docutils literal notranslate"><span class="pre">ProteinDefectInteractions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#packing_defect.core.interactions.process_multiple"><code class="docutils literal notranslate"><span class="pre">process_multiple()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#packing_defect.core.interactions.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.core.stats.html">packing_defect.core.stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.core.topology.html">packing_defect.core.topology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.core.vis.html">packing_defect.core.vis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.core.visualization.html">packing_defect.core.visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packing_defect.core.writer.html">packing_defect.core.writer</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="packing_defect.core.analyzers.html">packing_defect.core.analyzers</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">packing_defect</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API Documentation</a></li>
+          <li class="breadcrumb-item"><a href="packing_defect.html">packing_defect</a></li>
+          <li class="breadcrumb-item"><a href="packing_defect.core.html">packing_defect.core</a></li>
+      <li class="breadcrumb-item active">packing_defect.core.interactions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/autosummary/packing_defect.core.interactions.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-packing_defect.core.interactions">
+<span id="packing-defect-core-interactions"></span><h1>packing_defect.core.interactions<a class="headerlink" href="#module-packing_defect.core.interactions" title="Link to this heading"></a></h1>
+<p>interactions.py</p>
+<p>Tools for detecting protein–defect interactions in lipid membrane simulations.
+This module can process multiple lipid types, identify protein residues that
+interact with packing defects within a distance cutoff, and write results to a CSV.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#packing_defect.core.interactions.process_multiple" title="packing_defect.core.interactions.process_multiple"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_multiple</span></code></a>(input_dirs, output_csv, cutoff)</p></td>
+<td><p>Process multiple lipid-type directories and record protein–defect interactions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#packing_defect.core.interactions.run" title="packing_defect.core.interactions.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>(input_dirs[, cutoff, output_csv, ...])</p></td>
+<td><p>Compute protein–defect interactions, write the CSV, and return results.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#packing_defect.core.interactions.ProteinDefectInteractions" title="packing_defect.core.interactions.ProteinDefectInteractions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProteinDefectInteractions</span></code></a>([cutoff])</p></td>
+<td><p>Tracks protein–defect interactions in a single trajectory.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="packing_defect.core.interactions.ProteinDefectInteractions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">packing_defect.core.interactions.</span></span><span class="sig-name descname"><span class="pre">ProteinDefectInteractions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/packing_defect/core/interactions.html#ProteinDefectInteractions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packing_defect.core.interactions.ProteinDefectInteractions" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Tracks protein–defect interactions in a single trajectory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cutoff</strong> (<em>float, optional</em>) – Minimum distance in Å between a protein residue center of mass
+and any defect atom for the residue to be counted as interacting.
+Default is 0.1 Å.</p>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>cutoff</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Interaction distance threshold in Å.</p></li>
+<li><p><strong>results</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – Mapping from frame index → list of (resid, resname) tuples for interacting residues.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="packing_defect.core.interactions.ProteinDefectInteractions.track_frame">
+<span class="sig-name descname"><span class="pre">track_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">universe</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/packing_defect/core/interactions.html#ProteinDefectInteractions.track_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packing_defect.core.interactions.ProteinDefectInteractions.track_frame" title="Link to this definition"></a></dt>
+<dd><p>Analyze a single frame and record protein residues near defects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>universe</strong> (<em>MDAnalysis.Universe</em>) – Universe containing the current frame.</p></li>
+<li><p><strong>frame_index</strong> (<em>int or str</em>) – Index or identifier for the current frame.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>All protein residues whose center of mass lies within <cite>cutoff</cite> Å
+of any defect atom are recorded.</p></li>
+<li><p>Defect atoms are defined as all atoms not belonging to the protein.</p></li>
+</ul>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="packing_defect.core.interactions.process_multiple">
+<span class="sig-prename descclassname"><span class="pre">packing_defect.core.interactions.</span></span><span class="sig-name descname"><span class="pre">process_multiple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dirs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_csv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/packing_defect/core/interactions.html#process_multiple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packing_defect.core.interactions.process_multiple" title="Link to this definition"></a></dt>
+<dd><p>Process multiple lipid-type directories and record protein–defect interactions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_dirs</strong> (<em>list of str</em>) – Paths to directories containing <cite>.gro</cite> or <cite>.pdb</cite> files for each lipid type.
+Each directory is treated as a separate lipid type, and its basename
+is used as the lipid label in the output.</p></li>
+<li><p><strong>output_csv</strong> (<em>str</em>) – Path to the CSV file to be written. Parent directories will be created if necessary.</p></li>
+<li><p><strong>cutoff</strong> (<em>float</em>) – Distance cutoff in Å for protein–defect interactions.</p></li>
+<li><p><strong>Output CSV Format</strong></p></li>
+<li><p><strong>—————–</strong></p></li>
+<li><p><strong>type, frame, resid, resname</strong> –</p>
+<ul>
+<li><p>type : lipid type (directory name)</p></li>
+<li><p>frame : frame index (int or str extracted from filename)</p></li>
+<li><p>resid : residue ID of interacting protein residue</p></li>
+<li><p>resname : residue name of interacting protein residue</p></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Frame index is parsed from the filename by extracting the last underscore-delimited
+component before the extension. If parsing fails, the filename stem is used as-is.</p></li>
+<li><p>The CSV rows are sorted by lipid type (order given in <cite>input_dirs</cite>), then frame index,
+then residue ID.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="packing_defect.core.interactions.run">
+<span class="sig-prename descclassname"><span class="pre">packing_defect.core.interactions.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dirs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_csv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'combined_interactions.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_dataframe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/packing_defect/core/interactions.html#run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packing_defect.core.interactions.run" title="Link to this definition"></a></dt>
+<dd><p>Compute protein–defect interactions, write the CSV, and return results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_dirs</strong> (<em>list of str</em>) – Directories containing .gro/.pdb frames, one per lipid type.</p></li>
+<li><p><strong>cutoff</strong> (<em>float, optional</em>) – Distance cutoff in Å. Default 1.0.</p></li>
+<li><p><strong>output_csv</strong> (<em>str, optional</em>) – Output CSV path. Default “combined_interactions.csv”.</p></li>
+<li><p><strong>as_dataframe</strong> (<em>bool, optional</em>) – If True and pandas is available, return a pandas DataFrame.
+Otherwise return a list of dicts.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Rows with columns: type, frame, resid, resname.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="packing_defect.core.grid.html" class="btn btn-neutral float-left" title="packing_defect.core.grid" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="packing_defect.core.stats.html" class="btn btn-neutral float-right" title="packing_defect.core.stats" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, R. Jay Braun. Project structure based on the MDAnalysis Cookiecutter version 0.1.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
