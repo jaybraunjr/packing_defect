@@ -17,16 +17,18 @@ class RadiusDefectAnalyzer(BaseDefectAnalyzer):
 
     def __init__(
         self,
-        universe,
         base_directory,
         output_dir,
         lipid_types,
         frame_start,
         frame_end,
         protein_atom_count,
+        universe=None,
         apply_protein_cutoff=True,
         cutoff_distance=1.5,
     ):
+        if universe is None:
+            universe = mda.Universe.empty(0)
         super().__init__(universe, output_dir, lipid_types)
 
         self.base_directory = base_directory
@@ -74,6 +76,7 @@ class RadiusDefectAnalyzer(BaseDefectAnalyzer):
         except subprocess.CalledProcessError:
             print(f" Failed renumbering {input_file}")
 
+
     def _calculate_defects(self, universe, combine=False):
         """Calculate defect cluster sizes for one Universe."""
         up_sizes, dw_sizes = [], []
@@ -118,7 +121,7 @@ class RadiusDefectAnalyzer(BaseDefectAnalyzer):
             for f in filtered_files:
                 out = os.path.join(output_dir, "renumbered_" + os.path.basename(f))
                 self._renumber_gro(f, out)
-                renumbered_files.append(out)
+                renumbered_files.append(out if os.path.exists(out) else f)
 
             # Step 3: calculate defects
             up, down, combined = [], [], []

@@ -6,4 +6,4 @@ def run_analysis(analyzer):
     """
     analyzer.run()
     analyzer.plot()
-    analyzer.save_results( analyzer.results)
+    analyzer.save_results("results.txt", analyzer.results)

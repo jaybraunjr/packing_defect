@@ -3,6 +3,7 @@
 import os
 import numpy as np
 from MDAnalysis import AtomGroup
+from MDAnalysis.exceptions import NoDataError
 
 from packing_defect.core.analyzers.base import BaseDefectAnalyzer
 from packing_defect.core.grid import DefectGrid
@@ -103,12 +104,19 @@ class PackingDefectAnalyzer(BaseDefectAnalyzer):
         grid = DefectGrid(box_xy=(pbc[0], pbc[1]), dx=self.dx, dy=self.dy, hz=hz)
         zlim, PL = self._classify_leaflets(ag, grid)
         return grid, PL["up"] + 5, PL["dw"] - 5, dim
+    
 
     def _classify_leaflets(self, ag: AtomGroup, grid: DefectGrid):
         hz = grid.hz
+
+        def _mean_z(sel):
+            # Safe mean for massless test systems; fall back to hz if empty
+            return hz if sel.n_atoms == 0 else float(sel.positions[:, 2].mean())
+
+        # Use mean z instead of center_of_mass (no mass required)
         PL = {
-            "up": ag.select_atoms(f"name P and prop z > {hz}").center_of_mass()[2],
-            "dw": ag.select_atoms(f"name P and prop z < {hz}").center_of_mass()[2],
+            "up": _mean_z(ag.select_atoms(f"name P and prop z > {hz}")),
+            "dw": _mean_z(ag.select_atoms(f"name P and prop z < {hz}")),
         }
 
         atoms = {}
@@ -127,6 +135,51 @@ class PackingDefectAnalyzer(BaseDefectAnalyzer):
                 grid.update(x, y, z, radius, code, leaflet)
 
         return {"up": np.max(ag.positions[:, 2]), "dw": np.min(ag.positions[:, 2])}, PL
+
+
+
+
+    # def _classify_leaflets(self, ag: AtomGroup, grid: DefectGrid):
+    #     hz = grid.hz
+    #     PL = {
+    #         "up": ag.select_atoms(f"name P and prop z > {hz}").center_of_mass()[2],
+    #         "dw": ag.select_atoms(f"name P and prop z < {hz}").center_of_mass()[2],
+    #     }
+    #     hz = float(grid.hz)
+
+    #     sel_up = ag.select_atoms(f"name P and prop z > {hz}")
+    #     sel_dw = ag.select_atoms(f"name P and prop z < {hz}")
+
+    #     def _z_layer(sel, default):
+    #         # Prefer center_of_mass (uses masses) when available; otherwise mean z.
+    #         if sel.n_atoms == 0:
+    #             return float(default)
+    #         try:
+    #             return float(sel.center_of_mass()[2])
+    #         except NoDataError:
+    #             return float(sel.positions[:, 2].mean())
+    #         except Exception:
+    #             # Any other oddity: be conservative
+    #             return float(sel.positions[:, 2].mean()) if sel.n_atoms else float(default)
+
+    #     PL = {"up": _z_layer(sel_up, hz + 5.0), "dw": _z_layer(sel_dw, hz - 5.0)}
+
+    #     atoms = {}
+    #     if self.leaflet in ("both", "up"):
+    #         atoms["up"] = ag.select_atoms(f'prop z > {PL["up"] - 10}')
+    #     if self.leaflet in ("both", "dw"):
+    #         atoms["dw"] = ag.select_atoms(f'prop z < {PL["dw"] + 10}')
+
+    #     for leaflet, group in atoms.items():
+    #         for atom in group:
+    #             try:
+    #                 radius, code = self.radii[atom.resname][atom.name]
+    #             except KeyError:
+    #                 continue
+    #             x, y, z = atom.position
+    #             grid.update(x, y, z, radius, code, leaflet)
+
+    #     return {"up": np.max(ag.positions[:, 2]), "dw": np.min(ag.positions[:, 2])}, PL
 
     def _finalize(self):
         grids, zlimup, zlimdw, dims = zip(*self._results)
