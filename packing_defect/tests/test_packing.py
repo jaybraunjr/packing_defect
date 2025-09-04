@@ -116,7 +116,7 @@ def _build_analyzer(u, radii, tmp_path, leaflet="both", start=None, stop=None, s
     )
 
 
-def test_defaults_and_validation(tiny_universe_one_frame, radii_map_minimal, tmp_path):
+def test_defaults(tiny_universe_one_frame, radii_map_minimal, tmp_path):
     u = tiny_universe_one_frame
     # Use default thresholds via None and ensure mapping 1,2,3 assigned in that order
     analyzer = PackingDefectAnalyzer(
@@ -133,7 +133,7 @@ def test_defaults_and_validation(tiny_universe_one_frame, radii_map_minimal, tmp
     assert analyzer.defect_thresholds["TGacyl"] == 3
 
 
-def test_run_creates_dat_and_frames(tiny_universe_one_frame, radii_map_minimal, tmp_path):
+def test_run_outputs(tiny_universe_one_frame, radii_map_minimal, tmp_path):
     u = tiny_universe_one_frame
     analyzer = _build_analyzer(u, radii_map_minimal, tmp_path, leaflet="both")
 
@@ -155,7 +155,7 @@ def test_run_creates_dat_and_frames(tiny_universe_one_frame, radii_map_minimal, 
         mda.Universe(gro0)  # should not throw
 
 
-def test_leaflet_up_only_reduces_down_contribution(tiny_universe_one_frame, radii_map_minimal, tmp_path):
+def test_leaflet_up(tiny_universe_one_frame, radii_map_minimal, tmp_path):
     u = tiny_universe_one_frame
     # Run "both" and "up" so we can compare masks produced in memory
     a_both = _build_analyzer(u, radii_map_minimal, tmp_path / "both", leaflet="both")
@@ -178,7 +178,7 @@ def test_leaflet_up_only_reduces_down_contribution(tiny_universe_one_frame, radi
         assert down_mask_up_only.sum() == 0
 
 
-def test_multiple_frames_stride(tmp_path):
+def test_frames_stride(tmp_path):
     """
     Smoke test that multiple frames and stride do not crash.
     We reuse initialize_empty_defect_universe to fabricate a 2-frame dummy
