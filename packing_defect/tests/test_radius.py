@@ -75,7 +75,7 @@ def dummy_universe():
     return u
 
 
-def test_radius_pipeline_end_to_end(tmp_path, input_dirs, dummy_universe, monkeypatch):
+def test_radius_e2e(tmp_path, input_dirs, dummy_universe, monkeypatch):
     base_dir, lipids = input_dirs
     out_dir = tmp_path / "out"
     out_dir.mkdir(exist_ok=True)
