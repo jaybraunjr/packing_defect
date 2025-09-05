@@ -17,8 +17,27 @@ from packing_defect.utils import (
 
 
 class PackingDefectAnalyzer(BaseDefectAnalyzer):
-    """
-    Analyze packing defects using atom radii + classification codes.
+    """Analyze packing defects using atom radii and classification codes.
+
+    Parameters
+    ----------
+    universe : MDAnalysis.Universe
+        System with topology and trajectory.
+    atomgroups : list[MDAnalysis.core.groups.AtomGroup]
+        Atom groups that define the membrane region to analyze.
+    radii : dict[str, dict[str, tuple[float, int]]]
+        Mapping ``radii[resname][atomname] -> (radius, code)`` used to stamp
+        atoms into the defect grid and label them by integer code.
+    output_dir : str, optional
+        Destination for outputs.
+    leaflet : {"both", "up", "dw"}, optional
+        Which leaflet(s) to analyze.
+    defect_types : list[str], optional
+        Labels for defect classes; used when writing outputs.
+    defect_thresholds : dict[str, int], optional
+        Map from defect type to grid code; defaults to 1..N.
+    start, stop, stride : int, optional
+        Frame slicing parameters for the trajectory.
     """
 
     def __init__(

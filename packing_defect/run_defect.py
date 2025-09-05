@@ -1,3 +1,20 @@
+"""CLI entrypoint for packing-defect analysis.
+
+Provides a convenience builder for a PackingDefectAnalyzer and a
+command-line interface that mirrors the common options used in notebooks.
+
+Examples
+--------
+Run against a topology and trajectory and write outputs to a folder::
+
+    python -m packing_defect.run_defect \
+      --top system.gro \
+      --traj traj.xtc \
+      --out results \
+      --leaflet both --start 0 --stop 100 --stride 1
+
+"""
+
 import argparse
 import os
 import json
@@ -9,8 +26,39 @@ from packing_defect.core.analyzers.packing import PackingDefectAnalyzer
 from packing_defect.run_utils import run_analysis
 
 
-def build_packing_analyzer(top_file, traj_file, out_dir, class_json=None, leaflet="both",
-                           start=None, stop=None, stride=1):
+def build_packing_analyzer(
+    top_file: str,
+    traj_file: str,
+    out_dir: str,
+    class_json: str | None = None,
+    leaflet: str = "both",
+    start: int | None = None,
+    stop: int | None = None,
+    stride: int = 1,
+):
+    """Construct a PackingDefectAnalyzer configured for a typical workflow.
+
+    Parameters
+    ----------
+    top_file : str
+        Topology file readable by MDAnalysis (e.g., GRO, PSF, PDB).
+    traj_file : str
+        Trajectory file (e.g., XTC, DCD) aligned with ``top_file``.
+    out_dir : str
+        Directory where results and artifacts will be written.
+    class_json : str, optional
+        Path to a user JSON classification mapping. If omitted, uses
+        ``DefaultClassification``.
+    leaflet : {"both", "up", "dw"}, optional
+        Which leaflet(s) to analyze.
+    start, stop, stride : int, optional
+        Frame slicing parameters (as in ``trajectory[start:stop:stride]``).
+
+    Returns
+    -------
+    PackingDefectAnalyzer
+        Configured analyzer instance ready to ``run()``.
+    """
     # load radii
     radii_file = os.path.join(os.path.dirname(__file__), "data", "radii.json")
     with open(radii_file, encoding="utf-8") as f:
@@ -50,7 +98,9 @@ def build_packing_analyzer(top_file, traj_file, out_dir, class_json=None, leafle
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Run packing defect analysis")
+    parser = argparse.ArgumentParser(
+        description="Run packing defect analysis (radius stamping + clustering)"
+    )
     parser.add_argument("--top", required=True)
     parser.add_argument("--traj", required=True)
     parser.add_argument("--out", required=True)

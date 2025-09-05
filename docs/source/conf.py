@@ -83,8 +83,10 @@ autodoc_default_options = {
 }
 
 
-napoleon_google_docstring = False
-napoleon_use_param = False
+napoleon_google_docstring = False  # using NumPy style
+napoleon_numpy_docstring = True
+napoleon_use_param = True
+napoleon_use_rtype = True
 napoleon_use_ivar = True
 
 # Add any paths that contain templates here, relative to this directory.
