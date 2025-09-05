@@ -1,11 +1,7 @@
 name: GH Actions CI
 on:
   push:
-    branches:
-      - main
   pull_request:
-    branches:
-      - main
   schedule:
     # Weekly tests at midnight on Sundays run on main by default:
     #   Scheduled workflows run on the latest commit on the default or base branch.
@@ -69,13 +65,13 @@ jobs:
 
 
 
-    - name: Install MDAnalysis
-      run: |
-        if [[ "${{ matrix.mdanalysis-version }}" == "develop" ]]; then
-          pip install --pre --upgrade MDAnalysis
-        else
-          mamba install -y -c conda-forge MDAnalysis
-        fi
+    - name: Install MDAnalysis version
+      uses: MDAnalysis/install-mdanalysis@main
+      with:
+        version: ${{ matrix.mdanalysis-version }}
+        install-tests: true
+        installer:  mamba 
+        shell: bash  -l {0} 
 
 
 
@@ -178,3 +174,4 @@ jobs:
         test -n "${DISTRIBUTION}" || { echo "no distribution dist/packing_defect-*.tar.gz found"; exit 1; }
         echo "twine check $DISTRIBUTION"
         twine check $DISTRIBUTION
+  workflow_dispatch:
