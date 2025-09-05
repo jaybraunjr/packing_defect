@@ -65,34 +65,17 @@ jobs:
 
 
 
-
-    - name: Install MDAnalysis (Windows)
-      if: runner.os == 'Windows'
+    - name: Install MDAnalysis and tests (all OS)
       run: |
         if [[ "${{ matrix.mdanalysis-version }}" == "develop" ]]; then
+          # Dev/pre builds via pip
           pip install --pre --upgrade MDAnalysis MDAnalysisTests
         else
+          # Stable via conda-forge into the active env
           mamba install -y -c conda-forge MDAnalysis MDAnalysisTests
         fi
 
-    - name: Install MDAnalysis version (Linux/macOS)
-      if: runner.os != 'Windows'
-      uses: MDAnalysis/install-mdanalysis@main
-      with:
-        version: ${{ matrix.mdanalysis-version }}
-        install-tests: true
-        installer:  mamba 
 
-
-
-
-    # - name: Install MDAnalysis version
-    #   uses: MDAnalysis/install-mdanalysis@main
-    #   with:
-    #     version: ${{ matrix.mdanalysis-version }}
-    #     install-tests: false
-    #     installer:  mamba 
-    #     shell: bash  -l {0} 
       
     - name: Install package
       run: |
