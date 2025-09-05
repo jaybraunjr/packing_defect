@@ -7,7 +7,7 @@ dependencies:
     # Base depends
   - python
   - pip
-  - sphinx
+  - sphinx>=6.2.1
 
   - sphinx_rtd_theme
 

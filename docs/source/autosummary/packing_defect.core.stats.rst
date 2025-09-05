@@ -4,11 +4,6 @@ packing\_defect.core.stats
 .. automodule:: packing_defect.core.stats
 
    
-   
-   
-
-   
-   
    .. rubric:: Functions
 
    .. autosummary::
@@ -24,15 +19,3 @@ packing\_defect.core.stats
       open_gro
       return_stats
    
-   
-
-   
-   
-   
-
-   
-   
-   
-
-
-

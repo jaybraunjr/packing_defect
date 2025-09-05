@@ -4,30 +4,12 @@
 .. automodule:: packing_defect.core.analyzers
 
    
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-
-
 .. rubric:: Modules
 
 .. autosummary::
    :toctree:
    :recursive:
 
-   packing_defect.core.analyzers.base
-   packing_defect.core.analyzers.packing
-   packing_defect.core.analyzers.radius
-
+   base
+   packing
+   radius

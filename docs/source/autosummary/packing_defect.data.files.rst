@@ -4,20 +4,3 @@ packing\_defect.data.files
 .. automodule:: packing_defect.data.files
 
    
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-
-

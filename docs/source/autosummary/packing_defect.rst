@@ -4,33 +4,16 @@
 .. automodule:: packing_defect
 
    
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-
-
 .. rubric:: Modules
 
 .. autosummary::
    :toctree:
    :recursive:
 
-   packing_defect.core
-   packing_defect.data
-   packing_defect.run_defect
-   packing_defect.run_radius
-   packing_defect.run_utils
-   packing_defect.utils
-
+   core
+   data
+   io
+   run_defect
+   run_radius
+   run_utils
+   utils
