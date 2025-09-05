@@ -1,16 +1,13 @@
 name: GH Actions CI
 on:
   push:
-    branches:
-      - main
   pull_request:
-    branches:
-      - main
   schedule:
     # Weekly tests at midnight on Sundays run on main by default:
     #   Scheduled workflows run on the latest commit on the default or base branch.
     #   (from https://help.github.com/en/actions/reference/events-that-trigger-workflows#scheduled-events-schedule)
     - cron: "0 0 * * 0"
+  workflow_dispatch:
 
 concurrency:
   # Specific group naming so CI is only cancelled
@@ -68,25 +65,17 @@ jobs:
 
 
 
-
-    - name: Install MDAnalysis
+    - name: Install MDAnalysis and tests (all OS)
       run: |
         if [[ "${{ matrix.mdanalysis-version }}" == "develop" ]]; then
-          pip install --pre --upgrade MDAnalysis
+          # Dev/pre builds via pip
+          pip install --pre --upgrade MDAnalysis MDAnalysisTests
         else
-          mamba install -y -c conda-forge MDAnalysis
+          # Stable via conda-forge into the active env
+          mamba install -y -c conda-forge MDAnalysis MDAnalysisTests
         fi
 
 
-
-
-    # - name: Install MDAnalysis version
-    #   uses: MDAnalysis/install-mdanalysis@main
-    #   with:
-    #     version: ${{ matrix.mdanalysis-version }}
-    #     install-tests: false
-    #     installer:  mamba 
-    #     shell: bash  -l {0} 
       
     - name: Install package
       run: |
