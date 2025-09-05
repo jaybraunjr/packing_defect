@@ -4,11 +4,6 @@ packing\_defect.utils
 .. automodule:: packing_defect.utils
 
    
-   
-   
-
-   
-   
    .. rubric:: Functions
 
    .. autosummary::
@@ -19,15 +14,3 @@ packing\_defect.utils
       validate_defect_thresholds
       write_combined_gro
    
-   
-
-   
-   
-   
-
-   
-   
-   
-
-
-

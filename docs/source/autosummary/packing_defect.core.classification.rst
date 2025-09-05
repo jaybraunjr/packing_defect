@@ -4,15 +4,6 @@ packing\_defect.core.classification
 .. automodule:: packing_defect.core.classification
 
    
-   
-   
-
-   
-   
-   
-
-   
-   
    .. rubric:: Classes
 
    .. autosummary::
@@ -21,11 +12,3 @@ packing\_defect.core.classification
       DefaultClassification
       UserDictClassification
    
-   
-
-   
-   
-   
-
-
-

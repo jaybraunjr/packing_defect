@@ -4,26 +4,9 @@ packing\_defect.core.grid
 .. automodule:: packing_defect.core.grid
 
    
-   
-   
-
-   
-   
-   
-
-   
-   
    .. rubric:: Classes
 
    .. autosummary::
    
       DefectGrid
    
-   
-
-   
-   
-   
-
-
-

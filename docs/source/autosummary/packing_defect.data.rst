@@ -4,28 +4,10 @@ packing\_defect.data
 .. automodule:: packing_defect.data
 
    
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-
-
 .. rubric:: Modules
 
 .. autosummary::
    :toctree:
    :recursive:
 
-   packing_defect.data.files
-
+   files

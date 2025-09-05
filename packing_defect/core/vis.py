@@ -9,42 +9,11 @@ matplotlib.use('Agg')
 import argparse
 from pathlib import Path
 
-import numpy as np
-import matplotlib.pyplot as plt
-
+from packing_defect.core.visualization import plot_defect_data
 
 DEFAULT_LABELS  = ['PL-acyl', 'TG-glyc', 'TG-acyl']
 DEFAULT_COLORS  = ['blue',    'red',      'green']
 DEFAULT_MARKERS = ['o',       's',        '^']
-
-
-def plot_defect_data(file_paths, labels, colors, markers, title=None, output_path=None):
-    """
-    Scatter defect size vs probability on a log-y axis.
-    file_paths : list of three paths in order [TGacyl, TGglyc, PLacyl] or any order matching labels.
-    """
-    fig, ax = plt.subplots(figsize=(6,4))
-
-    for fp, lbl, mkr in zip(file_paths, labels, markers):
-        data = np.loadtxt(fp)
-        ax.scatter(data[:,0], data[:,1], label=lbl, marker=mkr, s=20, alpha=0.7)
-
-    ax.set_yscale('log')
-    ax.set_ylim(bottom=1e-5)
-    ax.set_xlabel('Defect size (Å²)')
-    ax.set_ylabel('Probability')
-    if title:
-        ax.set_title(title)
-    ax.legend()
-    fig.tight_layout()
-
-    if output_path:
-        output_path = Path(output_path)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        fig.savefig(output_path)
-        print(f'Plot saved to {output_path}')
-    else:
-        plt.show()
 
 def main():
     p = argparse.ArgumentParser(description="Visualize packing_defect .dat output")

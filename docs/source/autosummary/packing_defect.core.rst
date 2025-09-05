@@ -4,36 +4,18 @@ packing\_defect.core
 .. automodule:: packing_defect.core
 
    
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-
-
 .. rubric:: Modules
 
 .. autosummary::
    :toctree:
    :recursive:
 
-   packing_defect.core.classification
-   packing_defect.core.cluster
-   packing_defect.core.grid
-   packing_defect.core.interactions
-   packing_defect.core.stats
-   packing_defect.core.topology
-   packing_defect.core.vis
-   packing_defect.core.visualization
-   packing_defect.core.writer
-
+   classification
+   cluster
+   grid
+   interactions
+   stats
+   topology
+   vis
+   visualization
+   writer
