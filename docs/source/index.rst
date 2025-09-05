@@ -11,6 +11,7 @@ Welcome to packing_defect's documentation!
    :caption: Contents:
 
    getting_started
+   user_guide
    api
 
 
