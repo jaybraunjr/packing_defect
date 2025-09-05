@@ -26,7 +26,7 @@ Interfaces, outputs, and command-line options are still subject to change.
 [badge_release]: https://img.shields.io/github/release-pre/jaybraunjr/packing_defect.svg
 [url_actions]: https://github.com/jaybraunjr/packing_defect/actions?query=branch%3Amain+workflow%3Agh-ci
 [url_codecov]: https://codecov.io/gh/jaybraunjr/packing_defect/branch/main
-[url_docs]: https://packing_defect.readthedocs.io/en/latest/?badge=latest
+[url_docs]: https://packing-defect.readthedocs.io/en/latest/?badge=latest
 [url_latest_release]: https://github.com/jaybraunjr/packing_defect/releases
 [url_license]: https://www.gnu.org/licenses/gpl-2.0
 [url_mda]: https://www.mdanalysis.org

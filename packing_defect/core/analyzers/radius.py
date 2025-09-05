@@ -11,8 +11,26 @@ from packing_defect.utils import apply_pbc, compute_pairwise_distances
 
 
 class RadiusDefectAnalyzer(BaseDefectAnalyzer):
-    """
-    Defect analysis based on radius-cutoff GRO filtering.
+    """Defect analysis based on radius-cutoff GRO filtering.
+
+    Parameters
+    ----------
+    universe : MDAnalysis.Universe
+        Placeholder universe; used for interface consistency.
+    base_directory : str
+        Root directory containing per-lipid subfolders with ``*_frame_N.gro``.
+    output_dir : str
+        Destination directory for corrected/renumbered outputs and plots.
+    lipid_types : list[str]
+        List of lipid residue-name prefixes for subfolders.
+    frame_start, frame_end : int
+        Inclusive frame index range to process.
+    protein_atom_count : int
+        Number of protein atoms at the top of each GRO file.
+    apply_protein_cutoff : bool, optional
+        Whether to exclude defect atoms within ``cutoff_distance`` of protein.
+    cutoff_distance : float, optional
+        Distance cutoff for exclusion.
     """
 
     def __init__(
