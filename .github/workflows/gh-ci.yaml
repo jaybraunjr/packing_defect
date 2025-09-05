@@ -7,6 +7,7 @@ on:
     #   Scheduled workflows run on the latest commit on the default or base branch.
     #   (from https://help.github.com/en/actions/reference/events-that-trigger-workflows#scheduled-events-schedule)
     - cron: "0 0 * * 0"
+  workflow_dispatch:
 
 concurrency:
   # Specific group naming so CI is only cancelled
@@ -174,4 +175,3 @@ jobs:
         test -n "${DISTRIBUTION}" || { echo "no distribution dist/packing_defect-*.tar.gz found"; exit 1; }
         echo "twine check $DISTRIBUTION"
         twine check $DISTRIBUTION
-  workflow_dispatch:
