@@ -2,6 +2,9 @@ packing\_defect.core.interactions
 =================================
 
 .. automodule:: packing_defect.core.interactions
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
    
    .. rubric:: Functions

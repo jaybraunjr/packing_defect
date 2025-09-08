@@ -18,6 +18,7 @@ Run against a topology and trajectory and write outputs to a folder::
 import argparse
 import os
 import json
+from typing import Optional
 import MDAnalysis as mda
 
 from packing_defect.core.classification import DefaultClassification, UserDictClassification
@@ -30,10 +31,10 @@ def build_packing_analyzer(
     top_file: str,
     traj_file: str,
     out_dir: str,
-    class_json: str | None = None,
+    class_json: Optional[str] = None,
     leaflet: str = "both",
-    start: int | None = None,
-    stop: int | None = None,
+    start: Optional[int] = None,
+    stop: Optional[int] = None,
     stride: int = 1,
 ):
     """Construct a PackingDefectAnalyzer configured for a typical workflow.

@@ -91,7 +91,7 @@ class PackingDefectAnalyzer(BaseDefectAnalyzer):
             result = self._analyze_frame(ts)
             if result:
                 self._results.append(result)
-
+    
         if self._results:
             self._finalize()
         else:
@@ -154,51 +154,6 @@ class PackingDefectAnalyzer(BaseDefectAnalyzer):
                 grid.update(x, y, z, radius, code, leaflet)
 
         return {"up": np.max(ag.positions[:, 2]), "dw": np.min(ag.positions[:, 2])}, PL
-
-
-
-
-    # def _classify_leaflets(self, ag: AtomGroup, grid: DefectGrid):
-    #     hz = grid.hz
-    #     PL = {
-    #         "up": ag.select_atoms(f"name P and prop z > {hz}").center_of_mass()[2],
-    #         "dw": ag.select_atoms(f"name P and prop z < {hz}").center_of_mass()[2],
-    #     }
-    #     hz = float(grid.hz)
-
-    #     sel_up = ag.select_atoms(f"name P and prop z > {hz}")
-    #     sel_dw = ag.select_atoms(f"name P and prop z < {hz}")
-
-    #     def _z_layer(sel, default):
-    #         # Prefer center_of_mass (uses masses) when available; otherwise mean z.
-    #         if sel.n_atoms == 0:
-    #             return float(default)
-    #         try:
-    #             return float(sel.center_of_mass()[2])
-    #         except NoDataError:
-    #             return float(sel.positions[:, 2].mean())
-    #         except Exception:
-    #             # Any other oddity: be conservative
-    #             return float(sel.positions[:, 2].mean()) if sel.n_atoms else float(default)
-
-    #     PL = {"up": _z_layer(sel_up, hz + 5.0), "dw": _z_layer(sel_dw, hz - 5.0)}
-
-    #     atoms = {}
-    #     if self.leaflet in ("both", "up"):
-    #         atoms["up"] = ag.select_atoms(f'prop z > {PL["up"] - 10}')
-    #     if self.leaflet in ("both", "dw"):
-    #         atoms["dw"] = ag.select_atoms(f'prop z < {PL["dw"] + 10}')
-
-    #     for leaflet, group in atoms.items():
-    #         for atom in group:
-    #             try:
-    #                 radius, code = self.radii[atom.resname][atom.name]
-    #             except KeyError:
-    #                 continue
-    #             x, y, z = atom.position
-    #             grid.update(x, y, z, radius, code, leaflet)
-
-    #     return {"up": np.max(ag.positions[:, 2]), "dw": np.min(ag.positions[:, 2])}, PL
 
     def _finalize(self):
         grids, zlimup, zlimdw, dims = zip(*self._results)

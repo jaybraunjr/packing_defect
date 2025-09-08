@@ -142,11 +142,11 @@ class DefectGrid:
                 if leaflet == 'up':
                     if z > self.zdepth['up'][ii, jj]:
                         self.zdepth['up'][ii, jj] = z
-                        self.grid   ['up'][ii, jj] = code
+                        self.grid['up'][ii, jj] = code
                 else:  # leaflet == 'dw'
                     if z < self.zdepth['dw'][ii, jj]:
                         self.zdepth['dw'][ii, jj] = z
-                        self.grid   ['dw'][ii, jj] = code
+                        self.grid['dw'][ii, jj] = code
 
 
 
@@ -181,5 +181,4 @@ class DefectGrid:
         Values may be greater than zero; callers often convert to 0/1.
         """
         return self.grid[leaflet]
-
 
