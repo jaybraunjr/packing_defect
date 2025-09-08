@@ -72,7 +72,9 @@ autosummary_generate = True
 # when using the autosummary directive that is included
 # by default in api.rst
 autodoc_mock_imports = [
-    'packing_defect.tests'
+    'packing_defect.tests',
+    'MDAnalysis',
+    'MDAnalysisTests',
 ]
 
 autodoc_default_options = {
@@ -136,9 +138,9 @@ html_theme = "sphinx_rtd_theme"
 # }
 html_theme_options = {}
 
-# Set your logo and favicon here -- replace the placeholders!
-# An SVG with empty gears is provided for editing
-html_logo = "_static/logo/mdakits-placeholder-logo.png"
+# Set your logo and favicon here
+# Use project overview image as the RTD logo
+html_logo = "_static/images/packing_defect_overview.png"
 html_favicon = "_static/logo/mdakits-empty-favicon-template.svg"
 
 # Add any paths that contain custom static files (such as style sheets) here,
