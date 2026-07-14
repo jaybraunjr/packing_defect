@@ -3,8 +3,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 import json
 from pathlib import Path
 
-import pytest
-
 from packing_defect.core.classification import (
     DefaultClassification,
     UserDictClassification,

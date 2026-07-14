@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""
-vs.py
+"""Command-line entry point for plotting defect size distributions.
 
-Plot defect size distributions for one run of packing_defect.
+Wraps :func:`packing_defect.core.visualization.plot_defect_data` for a single
+``packing_defect`` run directory.
 """
 import matplotlib
 matplotlib.use('Agg')

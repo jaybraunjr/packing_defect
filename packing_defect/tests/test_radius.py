@@ -1,14 +1,10 @@
 import sys, os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 import shutil
-import os
-import tempfile
 import MDAnalysis as mda
-import numpy as np
 import pytest
 
 from packing_defect.core.analyzers.radius import RadiusDefectAnalyzer
-from packing_defect.run_utils import run_analysis
 
 
 # Use a non-interactive backend for matplotlib inside tests

@@ -7,7 +7,6 @@ import MDAnalysis as mda
 import pytest
 
 from packing_defect.core.analyzers.packing import PackingDefectAnalyzer
-from packing_defect.utils import initialize_empty_defect_universe
 
 
 @pytest.fixture
